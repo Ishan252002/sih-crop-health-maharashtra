@@ -15,9 +15,14 @@ export function RiskGauge({ score, level, size = 220, label, sublabel, className
   const endAngle = 30;
   const sweep = endAngle - startAngle;
 
+  // Trig results can differ in the last ULP between the SSR and browser engines,
+  // which makes React hydration reject the generated `d`/coordinate attributes.
+  // Rounding every computed coordinate to a fixed precision keeps the markup
+  // byte-identical on both sides without any visible change.
+  const round = (n: number) => Math.round(n * 1000) / 1000;
   const polar = (deg: number, radius = r) => {
     const rad = (deg * Math.PI) / 180;
-    return { x: cx + radius * Math.cos(rad), y: cy + radius * Math.sin(rad) };
+    return { x: round(cx + radius * Math.cos(rad)), y: round(cy + radius * Math.sin(rad)) };
   };
   const arc = (a0: number, a1: number, radius = r) => {
     const p0 = polar(a0, radius);
@@ -40,6 +45,7 @@ export function RiskGauge({ score, level, size = 220, label, sublabel, className
   const tipX = useTransform(tip, (p) => p.x);
   const tipY = useTransform(tip, (p) => p.y);
 
+  const height = round(size * 0.78);
   const color = COLORS[level];
   const segs: { from: number; to: number; c: string }[] = [
     { from: 0, to: 36, c: COLORS.LOW },
@@ -49,7 +55,7 @@ export function RiskGauge({ score, level, size = 220, label, sublabel, className
 
   return (
     <div className={cn("relative flex flex-col items-center", className)} style={{ width: size }}>
-      <svg width={size} height={size * 0.78} viewBox={`0 0 ${size} ${size * 0.78}`} className="overflow-visible">
+      <svg width={size} height={height} viewBox={`0 0 ${size} ${height}`} className="overflow-visible">
         <defs>
           <filter id="gauge-glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="4" result="b" />
