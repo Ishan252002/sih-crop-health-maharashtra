@@ -7,6 +7,7 @@ export type CropStage = "Seedling" | "Vegetative" | "Flowering" | "Fruiting" | "
 
 export interface District {
   id: string;
+  code: string;
   name: string;
   lat: number;
   lng: number;
@@ -169,4 +170,19 @@ export interface Alert {
   threatId?: string;
   createdAt: string;
   acknowledged: boolean;
+}
+
+export interface CropInsurance {
+  policyNumber: string;
+  farmerId: string;
+  cropId: string;
+  provider: string;
+  scheme: string;
+  season: string;
+  coverage: number;
+  status: "Active" | "Pending" | "Expired";
+  validFrom: string;
+  validTo: string;
+  plotId: string;
+  addedOn: string;
 }

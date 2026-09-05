@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { LogOut, Phone, MapPin, Landmark, Fingerprint, Bell, Languages, RotateCcw, ChevronRight } from "lucide-react";
+import { LogOut, Phone, MapPin, Landmark, Fingerprint, Bell, Languages, RotateCcw } from "lucide-react";
 import { FarmerShell } from "@/components/farmer/farmer-shell";
 import { useApp } from "@/lib/store/app-store";
 import { DEMO_FARMER } from "@/lib/mock/farmers";
@@ -9,6 +9,8 @@ import { districtById } from "@/lib/mock/geo";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { formatDate } from "@/lib/utils";
+import { InsuranceDocumentCard, SoilCardDocument } from "@/components/farmer/insurance";
+import { FileText } from "lucide-react";
 
 export default function Profile() {
   const { t, lang, farmerName, logout, reset, cases } = useApp();
@@ -48,7 +50,11 @@ export default function Profile() {
           <LanguageSwitcher className="w-full justify-between" />
           <div className="flex items-center justify-between pt-1"><span className="inline-flex items-center gap-2 text-sm font-semibold text-ink-900"><Bell className="h-4 w-4 text-forest-700" /> Risk alerts (SMS + app)</span><span className="h-6 w-11 rounded-full bg-forest-600 relative"><span className="absolute right-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow" /></span></div>
         </div>
-        <button onClick={() => router.push("/farmer/farm")} className="card-surface flex w-full items-center gap-3 px-4 py-3 text-left"><span className="flex-1 text-sm font-semibold text-ink-900">{t.soilHealthCard}</span><ChevronRight className="h-4 w-4 text-ink-400" /></button>
+        <div id="documents" className="space-y-2.5 scroll-mt-20">
+          <h2 className="font-display text-base font-bold text-ink-900 inline-flex items-center gap-2"><FileText className="h-4 w-4 text-forest-700" /> {t.myDocuments}</h2>
+          <SoilCardDocument />
+          <InsuranceDocumentCard />
+        </div>
         <Button variant="outline" className="w-full" onClick={() => { reset(); }}><RotateCcw className="h-4 w-4" /> Reset demo data</Button>
         <Button variant="danger" className="w-full" onClick={() => { logout(); router.replace("/farmer/login"); }}><LogOut className="h-4 w-4" /> {t.logout}</Button>
       </div>

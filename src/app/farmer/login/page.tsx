@@ -13,6 +13,7 @@ import { useApp } from "@/lib/store/app-store";
 import { DEMO_FARMER } from "@/lib/mock/farmers";
 import { DISTRICTS, CROPS } from "@/lib/mock/geo";
 import { cn } from "@/lib/utils";
+import { OnboardingDocuments } from "@/components/farmer/insurance";
 
 export default function FarmerLogin() {
   const { t, login } = useApp();
@@ -71,6 +72,7 @@ export default function FarmerLogin() {
                       </div>
                     </>
                   )}
+                  {mode === "register" && <OnboardingDocuments />}
                   <label className="block text-xs font-semibold text-ink-600">{mode === "login" ? t.farmerIdOrMobile : t.mobile}
                     <div className="relative mt-1">
                       {mode === "login" ? <Fingerprint className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" /> : <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />}

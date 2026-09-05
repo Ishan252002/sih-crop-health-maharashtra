@@ -1,4 +1,4 @@
-import type { Expert, Farmer } from "../types";
+import type { CropInsurance, Expert, Farmer } from "../types";
 
 export const DEMO_FARMER: Farmer = {
   id: "MH-NSK-2026-01847",
@@ -58,3 +58,18 @@ export const EXPERTS: Expert[] = [
   { id: "ex-4", name: "Plant Health Clinic", role: "Diagnostic Laboratory", org: "MPKV Rahuri", districtId: "ahmednagar", phone: "+91 2426 2XX XXX", specialisation: ["Lab confirmation", "Pathogen isolation", "Soil testing"], distanceKm: 118, available: true, languages: ["en", "mr", "hi"] },
   { id: "ex-5", name: "Dr. Rekha Wankhede", role: "Cotton Specialist", org: "CICR Nagpur", districtId: "nagpur", phone: "+91 712 2XX XXXX", specialisation: ["Cotton", "Bollworm", "Whitefly"], distanceKm: 640, available: true, languages: ["en", "hi", "mr"] },
 ];
+
+export const DEMO_INSURANCE: CropInsurance = {
+  policyNumber: "CI-MH-2026-18492",
+  farmerId: DEMO_FARMER.id,
+  cropId: "soybean",
+  provider: "Agriculture Insurance Company of India",
+  scheme: "PMFBY (Pradhan Mantri Fasal Bima Yojana)",
+  season: "Kharif 2026",
+  coverage: 85000,
+  status: "Active",
+  validFrom: "2026-07-01",
+  validTo: "2026-12-31",
+  plotId: "P1",
+  addedOn: "2026-09-05",
+};

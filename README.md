@@ -18,7 +18,7 @@ npm run build && npm start
 | Experience | Route | What it shows |
 | --- | --- | --- |
 | Landing | `/` | Hero, problem, "How the intelligence flows", feature showcases, impact, CTA |
-| Farmer app (mobile-first) | `/farmer/login` → `/farmer` | Login/registration, home, Check Crop (upload → AI scan → result), Risk Forecast, Advisory (EN/HI/MR), My Reports + follow-up, Nearby Expert, Soil Health Card, Profile |
+| Farmer app (mobile-first, Marathi by default) | `/farmer/login` → `/farmer` | Login/registration with optional documents (Soil Health Card, Crop Insurance, Skip for now), home with compact insurance status card, Check Crop (upload → AI scan → result), Risk Forecast, Advisory (EN/HI/MR), My Reports + follow-up, Nearby Expert, Soil Health Card, Profile → My Documents |
 | Expert console | `/expert` | Review queue, full case review (image, AI reasoning, weather, soil, history), Confirm / Correct / Request info / Refer, validation history |
 | Government platform | `/gov` | Overview KPIs + live hotspot map + charts, Surveillance matrix and trap network, Live Hotspots, Disease Analytics, Farmers registry, Expert Validation, Alerts + advisory push, Reports |
 
@@ -38,7 +38,19 @@ npm run build && npm start
 12. `/gov` → KPIs, district-wise risk, charts and the map aggregate everything.
 13. The top banner reads "High-risk cluster detected in Nashik".
 
-State (language, login, saved cases, expert decisions) persists in `localStorage`. Reset it from Farmer → Profile → "Reset demo data".
+State (language, login, saved cases, expert decisions, documents) persists in `localStorage`. Reset it from Farmer → Profile → "Reset demo data" (keeps you logged in).
+
+## Crop Insurance (optional document)
+
+Reference-only policy storage linked to the Farmer ID. No claims flow. Added in registration (Add / Skip for now), or later from Profile → My Documents. Shown as a compact status card on the farmer home. The form is pre-filled with the demo policy:
+
+`CI-MH-2026-18492 · Soybean · Kharif 2026 · ₹85,000 · Active · PMFBY`
+
+"Not added" is neutral and never implies ineligibility.
+
+## Replacing the sample leaf images
+
+The bundled samples are hand-drawn SVG illustrations. To use real field photos, drop files into `public/samples/` and update the two paths in `src/app/farmer/check/page.tsx` (search for `/samples/tomato-early-blight.svg` and `/samples/leaf-blurry.svg`). The same file names are referenced by seed cases in `src/lib/mock/cases.ts`, the landing hero and feature sections in `src/components/landing/`. JPG or PNG work; keep them roughly 4:3.
 
 ## Stack
 

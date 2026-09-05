@@ -37,7 +37,7 @@ export default function Surveillance() {
   return (
     <GovShell title="Surveillance" subtitle="District risk matrix, trap and sensor network, live case feed" actions={<FilterBar value={filters} onChange={setFilters} />}>
       <div className="grid gap-5 xl:grid-cols-[1.5fr_1fr]">
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <div className="card-surface overflow-hidden">
             <div className="flex items-center justify-between px-5 py-3 border-b border-ink-100"><div className="font-display font-bold text-ink-900 inline-flex items-center gap-2"><Radar className="h-4 w-4 text-forest-700" /> District risk matrix</div><span className="text-xs text-ink-500">weather-driven forecast for the dominant threat</span></div>
             <div className="overflow-x-auto">
@@ -81,7 +81,7 @@ export default function Surveillance() {
           </div>
         </div>
 
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <div className="card-surface p-5">
             <div className="flex items-center justify-between"><div className="font-display font-bold text-ink-900">Live case feed</div><span className="inline-flex items-center gap-1.5 text-xs text-forest-700 font-semibold"><span className="h-1.5 w-1.5 rounded-full bg-forest-500 animate-pulse" /> streaming</span></div>
             <div className="mt-3 space-y-2.5">
@@ -99,7 +99,7 @@ export default function Surveillance() {
           </div>
         </div>
       </div>
-      <div className="mt-3 text-[11px] text-ink-400">Showing {districts.length} of {DISTRICTS.length} districts. Statuses: {["Pending", "Under Review", "Confirmed", "Corrected", "Referred"].map((s) => <StatusBadge key={s} status={s as never} />).map((b, i) => <span key={i} className="ml-1 align-middle inline-block">{b}</span>)}</div>
+      <div className="mt-3 flex flex-wrap items-center gap-1 text-[11px] text-ink-400">Showing {districts.length} of {DISTRICTS.length} districts. Statuses: {["Pending", "Under Review", "Confirmed", "Corrected", "Referred"].map((s) => <StatusBadge key={s} status={s as never} />).map((b, i) => <span key={i} className="ml-1 align-middle inline-block">{b}</span>)}</div>
     </GovShell>
   );
 }

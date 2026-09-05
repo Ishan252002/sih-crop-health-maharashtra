@@ -34,6 +34,7 @@ export default function CheckCrop() {
   const [ai, setAi] = useState<DiagnosisResult | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
 
   const crop = cropById(cropId);
   const weather = weatherFor(districtId);
@@ -64,8 +65,7 @@ export default function CheckCrop() {
   const save = () => {
     if (!ai || !risk) return;
     const d = DISTRICTS.find((x) => x.id === districtId)!;
-    const code = d.name.slice(0, 3).toUpperCase();
-    const id = `MH-${code}-2026-${pad(500 + cases.filter((c) => c.source === "farmer").length + 1)}`;
+    const id = `MH-${d.code}-2026-${pad(500 + cases.filter((c) => c.source === "farmer").length + 1)}`;
     const c: CropCase = {
       id, farmerId: DEMO_FARMER.id, farmerName, village: DEMO_FARMER.village, districtId, cropId, stage,
       image: image!, imageLabel, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
@@ -139,6 +139,7 @@ export default function CheckCrop() {
           <motion.div key="upload" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
             <h2 className="font-display text-lg font-bold text-ink-900">{t.uploadPhoto}</h2>
             <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => e.target.files?.[0] && pick(e.target.files[0])} />
+            <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && pick(e.target.files[0])} />
             {image ? (
               <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-3xl shadow-lift">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -150,7 +151,7 @@ export default function CheckCrop() {
               <div
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) pick(f); }}
-                onClick={() => fileRef.current?.click()}
+                onClick={() => galleryRef.current?.click()}
                 className="flex aspect-[4/3] cursor-pointer flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-forest-300 bg-forest-50/60 text-center transition-colors hover:bg-forest-50"
               >
                 <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-forest-700 shadow-soft"><Camera className="h-7 w-7" /></span>
@@ -160,7 +161,7 @@ export default function CheckCrop() {
             )}
             <div className="grid grid-cols-2 gap-2">
               <Button variant="outline" onClick={() => fileRef.current?.click()}><Camera className="h-4 w-4" /> {t.takePhoto}</Button>
-              <Button variant="outline" onClick={() => fileRef.current?.click()}><ImagePlus className="h-4 w-4" /> {t.chooseFromGallery}</Button>
+              <Button variant="outline" onClick={() => galleryRef.current?.click()}><ImagePlus className="h-4 w-4" /> {t.chooseFromGallery}</Button>
             </div>
             <div className="card-surface p-3">
               <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-ink-600"><Sparkles className="h-3.5 w-3.5 text-amber-500" /> {t.useSample}</div>

@@ -14,6 +14,7 @@ import { WeatherStrip } from "@/components/shared/weather-panel";
 import { CaseCard } from "@/components/shared/case-card";
 import { cn, formatDate } from "@/lib/utils";
 import { RiskBadge } from "@/components/ui/badge";
+import { InsuranceStatusCard } from "@/components/farmer/insurance";
 
 export default function FarmerHome() {
   const { t, lang, farmerName, cases } = useApp();
@@ -98,6 +99,8 @@ export default function FarmerHome() {
         </div>
 
         <WeatherStrip weather={weather} stage={plot.stage} districtName={d.name} />
+
+        <InsuranceStatusCard />
 
         {due && (
           <Link href={`/farmer/reports/${due.id}`} className="flex items-center gap-3 rounded-2xl border border-amber-500/30 bg-amber-100/50 p-3.5">

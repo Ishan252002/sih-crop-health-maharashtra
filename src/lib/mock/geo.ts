@@ -1,21 +1,21 @@
 import type { Crop, District, Threat } from "../types";
 
 export const DISTRICTS: District[] = [
-  { id: "nashik", name: "Nashik", lat: 19.9975, lng: 73.7898, region: "North Maharashtra" },
-  { id: "pune", name: "Pune", lat: 18.5204, lng: 73.8567, region: "Western Maharashtra" },
-  { id: "nagpur", name: "Nagpur", lat: 21.1458, lng: 79.0882, region: "Vidarbha" },
-  { id: "ahmednagar", name: "Ahmednagar", lat: 19.0948, lng: 74.748, region: "Western Maharashtra" },
-  { id: "kolhapur", name: "Kolhapur", lat: 16.705, lng: 74.2433, region: "Western Maharashtra" },
-  { id: "satara", name: "Satara", lat: 17.6805, lng: 74.0183, region: "Western Maharashtra" },
-  { id: "sangli", name: "Sangli", lat: 16.8524, lng: 74.5815, region: "Western Maharashtra" },
-  { id: "jalgaon", name: "Jalgaon", lat: 21.0077, lng: 75.5626, region: "North Maharashtra" },
-  { id: "solapur", name: "Solapur", lat: 17.6599, lng: 75.9064, region: "Western Maharashtra" },
-  { id: "sambhajinagar", name: "Chhatrapati Sambhajinagar", lat: 19.8762, lng: 75.3433, region: "Marathwada" },
-  { id: "amravati", name: "Amravati", lat: 20.932, lng: 77.7523, region: "Vidarbha" },
-  { id: "yavatmal", name: "Yavatmal", lat: 20.3888, lng: 78.1204, region: "Vidarbha" },
-  { id: "latur", name: "Latur", lat: 18.4088, lng: 76.5604, region: "Marathwada" },
-  { id: "wardha", name: "Wardha", lat: 20.7453, lng: 78.6022, region: "Vidarbha" },
-  { id: "dhule", name: "Dhule", lat: 20.9042, lng: 74.7749, region: "North Maharashtra" },
+  { id: "nashik", code: "NSK", name: "Nashik", lat: 19.9975, lng: 73.7898, region: "North Maharashtra" },
+  { id: "pune", code: "PUN", name: "Pune", lat: 18.5204, lng: 73.8567, region: "Western Maharashtra" },
+  { id: "nagpur", code: "NAG", name: "Nagpur", lat: 21.1458, lng: 79.0882, region: "Vidarbha" },
+  { id: "ahmednagar", code: "AHM", name: "Ahmednagar", lat: 19.0948, lng: 74.748, region: "Western Maharashtra" },
+  { id: "kolhapur", code: "KOL", name: "Kolhapur", lat: 16.705, lng: 74.2433, region: "Western Maharashtra" },
+  { id: "satara", code: "SAT", name: "Satara", lat: 17.6805, lng: 74.0183, region: "Western Maharashtra" },
+  { id: "sangli", code: "SAN", name: "Sangli", lat: 16.8524, lng: 74.5815, region: "Western Maharashtra" },
+  { id: "jalgaon", code: "JAL", name: "Jalgaon", lat: 21.0077, lng: 75.5626, region: "North Maharashtra" },
+  { id: "solapur", code: "SOL", name: "Solapur", lat: 17.6599, lng: 75.9064, region: "Western Maharashtra" },
+  { id: "sambhajinagar", code: "CSN", name: "Chhatrapati Sambhajinagar", lat: 19.8762, lng: 75.3433, region: "Marathwada" },
+  { id: "amravati", code: "AMR", name: "Amravati", lat: 20.932, lng: 77.7523, region: "Vidarbha" },
+  { id: "yavatmal", code: "YAV", name: "Yavatmal", lat: 20.3888, lng: 78.1204, region: "Vidarbha" },
+  { id: "latur", code: "LAT", name: "Latur", lat: 18.4088, lng: 76.5604, region: "Marathwada" },
+  { id: "wardha", code: "WAR", name: "Wardha", lat: 20.7453, lng: 78.6022, region: "Vidarbha" },
+  { id: "dhule", code: "DHU", name: "Dhule", lat: 20.9042, lng: 74.7749, region: "North Maharashtra" },
 ];
 
 export const CROPS: Crop[] = [

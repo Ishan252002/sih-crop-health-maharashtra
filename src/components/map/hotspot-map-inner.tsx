@@ -44,6 +44,11 @@ function Resize() {
 
 export default function HotspotMapInner({ hotspots, selectedId, onSelect, height = 480, center = [19.4, 76.2], zoom = 6.6, interactive = true, showZones = true, className }: { hotspots: Hotspot[]; selectedId?: string; onSelect?: (h: Hotspot) => void; height?: number | string; center?: [number, number]; zoom?: number; interactive?: boolean; showZones?: boolean; className?: string }) {
   const selected = useMemo(() => hotspots.find((h) => h.id === selectedId), [hotspots, selectedId]);
+  const labelled = useMemo(() => {
+    const best = new Map<string, Hotspot>();
+    for (const h of hotspots) if (!best.has(h.districtId) || best.get(h.districtId)!.cases < h.cases) best.set(h.districtId, h);
+    return new Set([...best.values()].map((h) => h.id));
+  }, [hotspots]);
   return (
     <MapContainer
       center={center}
@@ -73,9 +78,11 @@ export default function HotspotMapInner({ hotspots, selectedId, onSelect, height
           title={`${districtById(h.districtId).name} · ${cropById(h.cropId).name} · ${threatById(h.threatId).name}`}
           zIndexOffset={h.risk === "HIGH" ? 500 : h.risk === "MEDIUM" ? 250 : 0}
         >
-          <Tooltip permanent direction="bottom" offset={[0, 14]} className="hotspot-label" opacity={1}>
-            {districtById(h.districtId).name}
-          </Tooltip>
+          {labelled.has(h.id) && (
+            <Tooltip permanent direction="bottom" offset={[0, 14]} className="hotspot-label" opacity={1}>
+              {districtById(h.districtId).name}
+            </Tooltip>
+          )}
         </Marker>
       ))}
     </MapContainer>

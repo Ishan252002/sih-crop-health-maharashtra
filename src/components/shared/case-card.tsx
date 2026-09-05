@@ -31,6 +31,7 @@ export function CaseCard({ c, href, className, showFarmer }: { c: CropCase; href
           <StatusBadge status={c.status} label={STATUS_NAMES[lang][c.status]} />
           <RiskBadge level={c.risk} />
           <span className="text-[11px] text-ink-400">{relativeTime(c.createdAt)}</span>
+          <span className="ml-auto font-mono text-[10px] text-ink-400">{c.id}</span>
         </div>
       </div>
       {href && <ChevronRight className="h-4 w-4 shrink-0 text-ink-300" />}

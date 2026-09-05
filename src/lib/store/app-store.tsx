@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, type ReactNode } from "react";
-import type { CaseStatus, CropCase, Lang } from "../types";
+import type { CaseStatus, CropCase, CropInsurance, Lang } from "../types";
 import { SEED_CASES } from "../mock/cases";
 import { UI, type UIStrings } from "../i18n/ui";
 
@@ -11,6 +11,8 @@ interface State {
   farmerName: string;
   cases: CropCase[];
   ackAlerts: string[];
+  insurance: CropInsurance | null;
+  insuranceSkipped: boolean;
   hydrated: boolean;
 }
 
@@ -23,9 +25,11 @@ type Action =
   | { type: "updateCase"; id: string; patch: Partial<CropCase> }
   | { type: "addFollowUp"; id: string; note: string; improved: boolean }
   | { type: "ackAlert"; id: string }
+  | { type: "setInsurance"; insurance: CropInsurance | null }
+  | { type: "skipInsurance" }
   | { type: "reset" };
 
-const initial: State = { lang: "en", loggedIn: false, farmerName: "Ramesh Patil", cases: SEED_CASES, ackAlerts: [], hydrated: false };
+const initial: State = { lang: "mr", loggedIn: false, farmerName: "Ramesh Patil", cases: SEED_CASES, ackAlerts: [], insurance: null, insuranceSkipped: false, hydrated: false };
 
 function reducer(s: State, a: Action): State {
   switch (a.type) {
@@ -37,7 +41,9 @@ function reducer(s: State, a: Action): State {
     case "updateCase": return { ...s, cases: s.cases.map((c) => (c.id === a.id ? { ...c, ...a.patch, updatedAt: new Date().toISOString() } : c)) };
     case "addFollowUp": return { ...s, cases: s.cases.map((c) => (c.id === a.id ? { ...c, followUps: [...c.followUps, { date: new Date().toISOString().slice(0, 10), note: a.note, improved: a.improved }] } : c)) };
     case "ackAlert": return { ...s, ackAlerts: [...new Set([...s.ackAlerts, a.id])] };
-    case "reset": return { ...initial, hydrated: true, lang: s.lang };
+    case "setInsurance": return { ...s, insurance: a.insurance, insuranceSkipped: a.insurance ? false : s.insuranceSkipped };
+    case "skipInsurance": return { ...s, insuranceSkipped: true };
+    case "reset": return { ...initial, hydrated: true, lang: s.lang, loggedIn: s.loggedIn, farmerName: s.farmerName };
     default: return s;
   }
 }
@@ -52,6 +58,8 @@ interface Ctx extends State {
   setStatus: (id: string, status: CaseStatus, extra?: Partial<CropCase>) => void;
   addFollowUp: (id: string, note: string, improved: boolean) => void;
   ackAlert: (id: string) => void;
+  setInsurance: (insurance: CropInsurance | null) => void;
+  skipInsurance: () => void;
   reset: () => void;
 }
 
@@ -95,9 +103,11 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const setStatus = useCallback((id: string, status: CaseStatus, extra?: Partial<CropCase>) => dispatch({ type: "updateCase", id, patch: { status, ...extra } }), []);
   const addFollowUp = useCallback((id: string, note: string, improved: boolean) => dispatch({ type: "addFollowUp", id, note, improved }), []);
   const ackAlert = useCallback((id: string) => dispatch({ type: "ackAlert", id }), []);
+  const setInsurance = useCallback((insurance: CropInsurance | null) => dispatch({ type: "setInsurance", insurance }), []);
+  const skipInsurance = useCallback(() => dispatch({ type: "skipInsurance" }), []);
   const reset = useCallback(() => dispatch({ type: "reset" }), []);
 
-  const value = useMemo<Ctx>(() => ({ ...state, t: UI[state.lang], setLang, login, logout, addCase, updateCase, setStatus, addFollowUp, ackAlert, reset }), [state, setLang, login, logout, addCase, updateCase, setStatus, addFollowUp, ackAlert, reset]);
+  const value = useMemo<Ctx>(() => ({ ...state, t: UI[state.lang], setLang, login, logout, addCase, updateCase, setStatus, addFollowUp, ackAlert, setInsurance, skipInsurance, reset }), [state, setLang, login, logout, addCase, updateCase, setStatus, addFollowUp, ackAlert, setInsurance, skipInsurance, reset]);
 
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
 }
