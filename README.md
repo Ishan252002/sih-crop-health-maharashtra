@@ -50,27 +50,18 @@ Reference-only policy storage linked to the Farmer ID. No claims flow. Added in 
 
 ## Replacing the sample leaf images
 
-The bundled samples are hand-drawn SVG illustrations. To use real field photos, drop files into `public/samples/` and update the two paths in `src/app/farmer/check/page.tsx` (search for `/samples/tomato-early-blight.svg` and `/samples/leaf-blurry.svg`). The same file names are referenced by seed cases in `src/lib/mock/cases.ts`, the landing hero and feature sections in `src/components/landing/`. JPG or PNG work; keep them roughly 4:3.
+The bundled samples are hand-drawn SVG illustrations. To use the two real tomato-leaf photos:
 
-## Stack
+1. Copy the photos into `public/samples/` with these names:
+   - `tomato-early-blight-clear.png` → clear leaf (Early Blight · 94% · Moderate · Confirmed)
+   - `tomato-early-blight-lowconf.png` → ambiguous leaf (Early Blight possible · 61% · Expert Review Required)
+2. Edit the two paths in `SAMPLE_IMAGES` in `src/lib/ai-mock.ts`:
 
-Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · Framer Motion · Recharts · Leaflet / React-Leaflet · Lucide icons.
-
-## Structure
-
-```
-src/
-  app/                 routes: /, /farmer/*, /expert/*, /gov/*
-  components/
-    ui/                button, card, badge, modal, tabs, select, progress, skeleton, stat-card, count-up
-    shared/            risk gauge, confidence ring, scan animation, advisory view, weather panel, language switcher, intelligence flow, case card
-    farmer/ gov/ expert/ map/ charts/ landing/
-  lib/
-    mock/              districts, crops, threats, hotspots, weather, farmers, cases, alerts, analytics
-    i18n/              UI strings + full IPM advisories in English, Hindi, Marathi
-    risk-engine.ts     rule-based LOW / MEDIUM / HIGH scoring with explainable factors
-    ai-mock.ts         simulated CNN/YOLO inference and scan steps
-    store/             app state (context + localStorage) and selectors
+```ts
+export const SAMPLE_IMAGES = {
+  clear: "/samples/tomato-early-blight-clear.png",
+  lowConfidence: "/samples/tomato-early-blight-lowconf.png",
+} as const;
 ```
 
-Map tiles load from CARTO basemaps and need internet access; markers, zones and panels work offline.
+That single constant feeds the Check Crop sample picker, the landing hero and the AI-detection feature section. The seed cases in `src/lib/mock/cases.ts` keep using the other illustrations (grape, cotton, onion, soybean, cane). PNG or JPG both work; roughly 4:3 looks best.

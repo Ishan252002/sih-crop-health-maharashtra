@@ -10,6 +10,17 @@ export const SCAN_STEPS = [
 
 export type SampleKey = "tomato-early-blight" | "leaf-blurry" | "upload";
 
+/**
+ * Demo sample images used by Check Crop, the landing hero and the AI-detection feature section.
+ * To use real field photos, drop the files into public/samples/ and change ONLY these two paths.
+ *  - clear:         primary tomato leaf → Early Blight · 94% · Moderate · Confirmed
+ *  - lowConfidence: ambiguous tomato leaf → Early Blight (possible) · 61% · Expert Review Required
+ */
+export const SAMPLE_IMAGES = {
+  clear: "/samples/tomato-early-blight.svg",
+  lowConfidence: "/samples/leaf-blurry.svg",
+} as const;
+
 interface Profile {
   threatId: string;
   confidence: number;

@@ -9,6 +9,7 @@ import { ConfidenceRing } from "@/components/shared/confidence-ring";
 import { RiskGauge } from "@/components/shared/risk-gauge";
 import { Badge } from "@/components/ui/badge";
 import { useRef } from "react";
+import { SAMPLE_IMAGES } from "@/lib/ai-mock";
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -49,7 +50,7 @@ export function Hero() {
         <div className="relative mx-auto w-full max-w-[520px] h-[480px] sm:h-[560px] select-none lg:max-w-none">
           <motion.div style={{ y: y3 }} initial={{ opacity: 0, scale: 0.94, rotate: -2 }} animate={{ opacity: 1, scale: 1, rotate: -2 }} transition={{ duration: 0.7, delay: 0.2 }} className="absolute left-0 top-6 w-[62%] overflow-hidden rounded-3xl bg-ink-900 shadow-lift">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/samples/tomato-early-blight.svg" alt="Tomato leaf with early blight" className="aspect-[4/3] w-full object-cover" />
+            <img src={SAMPLE_IMAGES.clear} alt="Tomato leaf with early blight" className="aspect-[4/3] w-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-ink-900/70 via-transparent" />
             <div className="absolute left-0 right-0 h-10 animate-scan bg-gradient-to-b from-transparent to-forest-300/70" />
             {[{ x: 24, y: 70, w: 13, h: 12 }, { x: 43, y: 60, w: 15, h: 13 }, { x: 64, y: 44, w: 12, h: 11 }].map((b, i) => (

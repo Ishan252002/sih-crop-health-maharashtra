@@ -12,7 +12,7 @@ import { DEMO_FARMER } from "@/lib/mock/farmers";
 import { Button } from "@/components/ui/button";
 import { ScanAnimation } from "@/components/shared/scan-animation";
 import { DiagnosisResultCard } from "@/components/farmer/diagnosis-result";
-import { simulateDiagnosis, needsExpert, type SampleKey } from "@/lib/ai-mock";
+import { simulateDiagnosis, needsExpert, SAMPLE_IMAGES, type SampleKey } from "@/lib/ai-mock";
 import { weatherFor } from "@/lib/mock/weather";
 import { computeRisk } from "@/lib/risk-engine";
 import { HOTSPOTS } from "@/lib/mock/hotspots";
@@ -166,14 +166,14 @@ export default function CheckCrop() {
             <div className="card-surface p-3">
               <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-ink-600"><Sparkles className="h-3.5 w-3.5 text-amber-500" /> {t.useSample}</div>
               <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => pickSample("tomato-early-blight", "/samples/tomato-early-blight.svg", t.sampleClear)} className={cn("overflow-hidden rounded-xl border text-left transition-all", sample === "tomato-early-blight" && image ? "border-forest-600 ring-2 ring-forest-200" : "border-ink-100")}>
+                <button onClick={() => pickSample("tomato-early-blight", SAMPLE_IMAGES.clear, t.sampleClear)} className={cn("overflow-hidden rounded-xl border text-left transition-all", sample === "tomato-early-blight" && image ? "border-forest-600 ring-2 ring-forest-200" : "border-ink-100")}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/samples/tomato-early-blight.svg" alt="" className="aspect-[16/10] w-full object-cover" />
+                  <img src={SAMPLE_IMAGES.clear} alt="" className="aspect-[16/10] w-full object-cover" />
                   <div className="px-2 py-1.5 text-[11px] font-semibold text-ink-800">{t.sampleClear}</div>
                 </button>
-                <button onClick={() => pickSample("leaf-blurry", "/samples/leaf-blurry.svg", t.sampleBlurry)} className={cn("overflow-hidden rounded-xl border text-left transition-all", sample === "leaf-blurry" && image ? "border-forest-600 ring-2 ring-forest-200" : "border-ink-100")}>
+                <button onClick={() => pickSample("leaf-blurry", SAMPLE_IMAGES.lowConfidence, t.sampleBlurry)} className={cn("overflow-hidden rounded-xl border text-left transition-all", sample === "leaf-blurry" && image ? "border-forest-600 ring-2 ring-forest-200" : "border-ink-100")}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/samples/leaf-blurry.svg" alt="" className="aspect-[16/10] w-full object-cover" />
+                  <img src={SAMPLE_IMAGES.lowConfidence} alt="" className="aspect-[16/10] w-full object-cover" />
                   <div className="px-2 py-1.5 text-[11px] font-semibold text-ink-800">{t.sampleBlurry} <span className="text-amber-600">(→ expert)</span></div>
                 </button>
               </div>

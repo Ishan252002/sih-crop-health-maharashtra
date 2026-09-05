@@ -19,6 +19,7 @@ import type { Lang } from "@/lib/types";
 import { advisoryFor } from "@/lib/i18n/advisories";
 import { LANGS } from "@/lib/i18n/ui";
 import { Logo } from "@/components/shared/logo";
+import { SAMPLE_IMAGES } from "@/lib/ai-mock";
 
 const fade = { initial: { opacity: 0, y: 18 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-60px" }, transition: { duration: 0.55 } } as const;
 
@@ -97,7 +98,7 @@ function DetectionVisual() {
       <div className="card-surface overflow-hidden">
         <div className="relative bg-ink-900">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/samples/tomato-early-blight.svg" alt="" className="aspect-[16/10] w-full object-cover opacity-95" />
+          <img src={SAMPLE_IMAGES.clear} alt="" className="aspect-[16/10] w-full object-cover opacity-95" />
           <div className="absolute left-0 right-0 h-12 animate-scan bg-gradient-to-b from-transparent to-forest-300/70" />
           {[{ x: 24, y: 70, w: 13, h: 12 }, { x: 43, y: 60, w: 15, h: 13 }, { x: 64, y: 44, w: 12, h: 11 }, { x: 78, y: 22, w: 11, h: 11 }].map((b, i) => (
             <span key={i} className="absolute rounded-md border-2 border-amber-500" style={{ left: `${b.x}%`, top: `${b.y}%`, width: `${b.w}%`, height: `${b.h}%` }}><span className="absolute -top-5 left-0 rounded bg-amber-500 px-1 text-[9px] font-bold text-white">lesion</span></span>
