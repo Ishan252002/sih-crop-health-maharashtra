@@ -85,7 +85,7 @@ export default function Surveillance() {
           <div className="card-surface p-5">
             <div className="flex items-center justify-between"><div className="font-display font-bold text-ink-900">Live case feed</div><span className="inline-flex items-center gap-1.5 text-xs text-forest-700 font-semibold"><span className="h-1.5 w-1.5 rounded-full bg-forest-500 animate-pulse" /> streaming</span></div>
             <div className="mt-3 space-y-2.5">
-              {recent.map((c) => <CaseCard key={c.id} c={c} href={`/gov/validation/${c.id}`} showFarmer />)}
+              {recent.map((c) => <CaseCard key={c.id} c={c} href={`/gov/validation/${c.id}`} showFarmer forceLang="en" />)}
             </div>
           </div>
           <div className="card-surface p-5">

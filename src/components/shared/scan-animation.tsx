@@ -5,8 +5,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
 import { SCAN_STEPS } from "@/lib/ai-mock";
 import { cn } from "@/lib/utils";
+import { useApp } from "@/lib/store/app-store";
 
-export function ScanAnimation({ image, onDone, title = "Analyzing crop...", stepMs = 900 }: { image: string; onDone: () => void; title?: string; stepMs?: number }) {
+export function ScanAnimation({ image, onDone, title, stepMs = 900 }: { image: string; onDone: () => void; title?: string; stepMs?: number }) {
+  const { t, tx } = useApp();
   const [step, setStep] = useState(0);
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export function ScanAnimation({ image, onDone, title = "Analyzing crop...", step
     <div className="flex flex-col gap-5">
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-ink-900 shadow-lift">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={image} alt="Uploaded crop" className="h-full w-full object-cover" />
+        <img src={image} alt={t.uploadedPhoto} className="h-full w-full object-cover" />
         <div className="absolute inset-0 grid-fade opacity-60" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink-900/60 via-transparent to-transparent" />
         {/* scan line */}
@@ -49,11 +51,11 @@ export function ScanAnimation({ image, onDone, title = "Analyzing crop...", step
               className="absolute rounded-md border-2 border-amber-500"
               style={{ left: `${b.x}%`, top: `${b.y}%`, width: `${b.w}%`, height: `${b.h}%`, boxShadow: "0 0 0 2px rgba(224,154,28,0.25)" }}
             >
-              <span className="absolute -top-5 left-0 rounded bg-amber-500 px-1.5 py-0.5 text-[9px] font-bold text-white">lesion {(0.82 + i * 0.04).toFixed(2)}</span>
+              <span className="absolute -top-5 left-0 rounded bg-amber-500 px-1.5 py-0.5 text-[9px] font-bold text-white">{t.lesion} {(0.82 + i * 0.04).toFixed(2)}</span>
             </motion.div>
           ))}
         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[11px] font-medium text-white/85">
-          <span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-forest-300 animate-pulse" />CropNet-v2.3 · on-device preprocessing</span>
+          <span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-forest-300 animate-pulse" />CropNet-v2.3 · {t.onDevice}</span>
           <span>{Math.min(100, Math.round((step / SCAN_STEPS.length) * 100))}%</span>
         </div>
       </div>
@@ -64,8 +66,8 @@ export function ScanAnimation({ image, onDone, title = "Analyzing crop...", step
             <Loader2 className="h-4.5 w-4.5 animate-spin" />
           </span>
           <div>
-            <div className="font-display text-base font-bold text-ink-900">{title}</div>
-            <div className="text-xs text-ink-500">Runs in ~4 seconds on 2G networks via compressed model</div>
+            <div className="font-display text-base font-bold text-ink-900">{title ?? t.analyzing}</div>
+            <div className="text-xs text-ink-500">{t.analysisNote}</div>
           </div>
         </div>
         <ol className="space-y-2.5">
@@ -85,9 +87,9 @@ export function ScanAnimation({ image, onDone, title = "Analyzing crop...", step
                   </AnimatePresence>
                 </span>
                 <div className="min-w-0">
-                  <div className={cn("text-sm font-semibold", state === "todo" ? "text-ink-400" : "text-ink-900")}>{s.label}</div>
+                  <div className={cn("text-sm font-semibold", state === "todo" ? "text-ink-400" : "text-ink-900")}>{tx(s.label)}</div>
                   {state === "active" && (
-                    <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-ink-500">{s.detail}</motion.div>
+                    <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-ink-500">{tx(s.detail)}</motion.div>
                   )}
                 </div>
               </li>

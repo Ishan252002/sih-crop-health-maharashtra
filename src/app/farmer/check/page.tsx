@@ -7,7 +7,7 @@ import { Camera, Check, ImagePlus, MapPin, RefreshCcw, Sparkles, Upload } from "
 import { FarmerShell } from "@/components/farmer/farmer-shell";
 import { useApp } from "@/lib/store/app-store";
 import { CROPS, DISTRICTS, cropById } from "@/lib/mock/geo";
-import { CROP_NAMES, STAGE_NAMES } from "@/lib/i18n/ui";
+import { CROP_NAMES, STAGE_NAMES, DISTRICT_NAMES } from "@/lib/i18n/ui";
 import { DEMO_FARMER } from "@/lib/mock/farmers";
 import { Button } from "@/components/ui/button";
 import { ScanAnimation } from "@/components/shared/scan-animation";
@@ -22,7 +22,7 @@ import { cn, pad } from "@/lib/utils";
 type Step = "setup" | "upload" | "scan" | "result";
 
 export default function CheckCrop() {
-  const { t, lang, addCase, farmerName, cases } = useApp();
+  const { t, tx, lang, addCase, farmerName, cases } = useApp();
   const router = useRouter();
   const [step, setStep] = useState<Step>("setup");
   const [cropId, setCropId] = useState("tomato");
@@ -83,7 +83,7 @@ export default function CheckCrop() {
     router.push(`/farmer/advisory?threat=${ai.threatId}&crop=${cropId}&severity=${ai.severity}`);
   };
 
-  const steps: { id: Step; label: string }[] = [{ id: "setup", label: "Crop" }, { id: "upload", label: "Photo" }, { id: "scan", label: "AI" }, { id: "result", label: "Result" }];
+  const steps: { id: Step; label: string }[] = [{ id: "setup", label: t.stepCrop }, { id: "upload", label: t.stepPhoto }, { id: "scan", label: t.stepAI }, { id: "result", label: t.stepResult }];
   const idx = steps.findIndex((s) => s.id === step);
 
   return (
@@ -123,10 +123,10 @@ export default function CheckCrop() {
             <div>
               <h2 className="font-display text-lg font-bold text-ink-900">{t.selectLocation}</h2>
               <div className="mt-2 card-surface p-3">
-                <div className="flex items-center gap-2 rounded-xl bg-forest-50 px-3 py-2 text-xs text-forest-800"><MapPin className="h-4 w-4" /> GPS: 20.20° N, 73.83° E · {DEMO_FARMER.village}, {DISTRICTS.find((d) => d.id === districtId)?.name}</div>
+                <div className="flex items-center gap-2 rounded-xl bg-forest-50 px-3 py-2 text-xs text-forest-800"><MapPin className="h-4 w-4" /> {t.gps}: 20.20° N, 73.83° E · {tx(DEMO_FARMER.village)}, {DISTRICT_NAMES[lang][districtId]}</div>
                 <div className="mt-2 grid grid-cols-3 gap-1.5">
                   {DISTRICTS.slice(0, 9).map((d) => (
-                    <button key={d.id} onClick={() => setDistrictId(d.id)} className={cn("rounded-xl border px-2 py-2 text-[11.5px] font-semibold transition-colors truncate", districtId === d.id ? "border-forest-800 bg-forest-800 text-white" : "border-ink-100 bg-white text-ink-700")}>{d.name}</button>
+                    <button key={d.id} onClick={() => setDistrictId(d.id)} className={cn("rounded-xl border px-2 py-2 text-[11.5px] font-semibold transition-colors truncate", districtId === d.id ? "border-forest-800 bg-forest-800 text-white" : "border-ink-100 bg-white text-ink-700")}>{DISTRICT_NAMES[lang][d.id]}</button>
                   ))}
                 </div>
               </div>
@@ -143,9 +143,9 @@ export default function CheckCrop() {
             {image ? (
               <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="relative overflow-hidden rounded-3xl shadow-lift">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={image} alt="Selected crop" className="aspect-[4/3] w-full object-cover" />
+                <img src={image} alt={t.uploadedPhoto} className="aspect-[4/3] w-full object-cover" />
                 <button onClick={() => setImage(null)} className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-ink-800 shadow-soft"><RefreshCcw className="h-3.5 w-3.5" /> {t.retake}</button>
-                <div className="absolute bottom-3 left-3 rounded-lg bg-ink-900/70 px-2 py-1 text-[11px] text-white">{imageLabel}</div>
+                <div className="absolute bottom-3 left-3 rounded-lg bg-ink-900/70 px-2 py-1 text-[11px] text-white">{tx(imageLabel)}</div>
               </motion.div>
             ) : (
               <div
@@ -156,7 +156,7 @@ export default function CheckCrop() {
               >
                 <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-forest-700 shadow-soft"><Camera className="h-7 w-7" /></span>
                 <div className="font-semibold text-ink-900">{t.takePhoto}</div>
-                <div className="text-xs text-ink-500">or drag and drop · JPG, PNG, HEIC</div>
+                <div className="text-xs text-ink-500">{t.dragDrop}</div>
               </div>
             )}
             <div className="grid grid-cols-2 gap-2">
@@ -166,15 +166,15 @@ export default function CheckCrop() {
             <div className="card-surface p-3">
               <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-ink-600"><Sparkles className="h-3.5 w-3.5 text-amber-500" /> {t.useSample}</div>
               <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => pickSample("tomato-early-blight", SAMPLE_IMAGES.clear, t.sampleClear)} className={cn("overflow-hidden rounded-xl border text-left transition-all", sample === "tomato-early-blight" && image ? "border-forest-600 ring-2 ring-forest-200" : "border-ink-100")}>
+                <button onClick={() => pickSample("tomato-early-blight", SAMPLE_IMAGES.clear, "Tomato leaf, clear photo")} className={cn("overflow-hidden rounded-xl border text-left transition-all", sample === "tomato-early-blight" && image ? "border-forest-600 ring-2 ring-forest-200" : "border-ink-100")}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={SAMPLE_IMAGES.clear} alt="" className="aspect-[16/10] w-full object-cover" />
                   <div className="px-2 py-1.5 text-[11px] font-semibold text-ink-800">{t.sampleClear}</div>
                 </button>
-                <button onClick={() => pickSample("leaf-blurry", SAMPLE_IMAGES.lowConfidence, t.sampleBlurry)} className={cn("overflow-hidden rounded-xl border text-left transition-all", sample === "leaf-blurry" && image ? "border-forest-600 ring-2 ring-forest-200" : "border-ink-100")}>
+                <button onClick={() => pickSample("leaf-blurry", SAMPLE_IMAGES.lowConfidence, "Leaf photo, low light")} className={cn("overflow-hidden rounded-xl border text-left transition-all", sample === "leaf-blurry" && image ? "border-forest-600 ring-2 ring-forest-200" : "border-ink-100")}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={SAMPLE_IMAGES.lowConfidence} alt="" className="aspect-[16/10] w-full object-cover" />
-                  <div className="px-2 py-1.5 text-[11px] font-semibold text-ink-800">{t.sampleBlurry} <span className="text-amber-600">(→ expert)</span></div>
+                  <div className="px-2 py-1.5 text-[11px] font-semibold text-ink-800">{t.sampleBlurry} <span className="text-amber-600">{t.toExpert}</span></div>
                 </button>
               </div>
             </div>
@@ -198,7 +198,7 @@ export default function CheckCrop() {
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl bg-forest-900 p-4 text-white">
                 <div className="text-[11px] font-semibold uppercase tracking-wider text-forest-300">{t.reportSaved}</div>
                 <div className="mt-0.5 font-mono text-sm">{savedId}</div>
-                <div className="mt-1 text-xs text-white/70">{needsExpert(ai.confidence) ? "Sent to expert queue · visible on the government dashboard as Pending" : "Logged to district surveillance · hotspot map updated"}</div>
+                <div className="mt-1 text-xs text-white/70">{needsExpert(ai.confidence) ? t.sentToExpertQueue : t.loggedToSurveillance}</div>
                 <div className="mt-3 flex gap-2">
                   <Button size="sm" variant="glass" className="flex-1" onClick={() => router.push(`/farmer/reports/${savedId}`)}>{t.trackFollowUp}</Button>
                   <Button size="sm" variant="glass" className="flex-1" onClick={() => { setStep("setup"); setImage(null); setAi(null); setSavedId(null); }}>{t.newScan}</Button>

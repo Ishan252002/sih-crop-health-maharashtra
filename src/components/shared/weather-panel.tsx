@@ -8,7 +8,7 @@ import { useApp } from "@/lib/store/app-store";
 import { STAGE_NAMES } from "@/lib/i18n/ui";
 
 export function WeatherStrip({ weather, stage, className, districtName }: { weather: WeatherSnapshot; stage?: CropStage; className?: string; districtName?: string }) {
-  const { t, lang } = useApp();
+  const { t, tx, lang } = useApp();
   const items = [
     { icon: Thermometer, label: t.temperature, value: `${weather.temp}°C`, tone: "text-amber-600 bg-amber-100" },
     { icon: Droplets, label: t.humidity, value: `${weather.humidity}%`, tone: "text-sky-500 bg-sky-100" },
@@ -25,7 +25,7 @@ export function WeatherStrip({ weather, stage, className, districtName }: { weat
           </span>
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-wider text-ink-500">{t.weatherNow}{districtName ? ` · ${districtName}` : ""}</div>
-            <div className="font-display text-base font-bold text-ink-900">{weather.condition} · {weather.temp}°C</div>
+            <div className="font-display text-base font-bold text-ink-900">{tx(weather.condition)} · {weather.temp}°C</div>
           </div>
         </div>
         {stage && (
@@ -52,16 +52,17 @@ export function WeatherStrip({ weather, stage, className, districtName }: { weat
 }
 
 export function ForecastRow({ weather, trend, className }: { weather: WeatherSnapshot; trend: { day: string; score: number; level: "LOW" | "MEDIUM" | "HIGH" }[]; className?: string }) {
+  const { t, tx } = useApp();
   const colors = { LOW: "bg-risk-low", MEDIUM: "bg-risk-medium", HIGH: "bg-risk-high" };
   return (
     <div className={cn("flex gap-2 overflow-x-auto hide-scrollbar -mx-1 px-1 pb-1", className)}>
       {weather.forecast.map((d, i) => (
         <div key={d.day} className={cn("flex min-w-[68px] flex-1 flex-col items-center gap-1.5 rounded-2xl border p-2.5 text-center", i === 0 ? "border-forest-300 bg-forest-50" : "border-ink-100 bg-white")}>
-          <span className="text-[11px] font-semibold text-ink-500">{d.day}</span>
+          <span className="text-[11px] font-semibold text-ink-500">{tx(d.day)}</span>
           <WeatherIcon condition={d.condition} className="h-5 w-5" animated={false} />
           <span className="text-sm font-bold text-ink-900">{d.temp}°</span>
           <span className="text-[10px] text-sky-500">{d.humidity}%</span>
-          <span className={cn("h-1.5 w-full rounded-full", colors[trend[i]?.level ?? "LOW"])} title={`Risk ${trend[i]?.score}`} />
+          <span className={cn("h-1.5 w-full rounded-full", colors[trend[i]?.level ?? "LOW"])} title={`${t.risk} ${trend[i]?.score}`} />
         </div>
       ))}
     </div>

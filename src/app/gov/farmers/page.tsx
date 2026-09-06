@@ -73,7 +73,7 @@ export default function Farmers() {
               </div>
               <div>
                 <div className="mb-2 text-xs font-bold uppercase tracking-wider text-ink-500">Case history</div>
-                <div className="space-y-2">{cases.filter((c) => c.farmerId === open.id).map((c) => <CaseCard key={c.id} c={c} href={`/gov/validation/${c.id}`} />)}{cases.filter((c) => c.farmerId === open.id).length === 0 && <div className="text-sm text-ink-500">No cases reported.</div>}</div>
+                <div className="space-y-2">{cases.filter((c) => c.farmerId === open.id).map((c) => <CaseCard key={c.id} c={c} href={`/gov/validation/${c.id}`} forceLang="en" />)}{cases.filter((c) => c.farmerId === open.id).length === 0 && <div className="text-sm text-ink-500">No cases reported.</div>}</div>
               </div>
             </div>
             <div><SoilNutrients soil={open.soil} /><Link href="/farmer/farm" className="mt-3 inline-flex text-xs font-semibold text-forest-800 hover:underline">Open the farmer&apos;s Soil Health Card view →</Link></div>

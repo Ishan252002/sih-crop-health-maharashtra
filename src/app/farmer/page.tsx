@@ -9,7 +9,7 @@ import { DEMO_FARMER } from "@/lib/mock/farmers";
 import { districtById, cropById } from "@/lib/mock/geo";
 import { weatherFor } from "@/lib/mock/weather";
 import { computeRisk } from "@/lib/risk-engine";
-import { CROP_NAMES, STAGE_NAMES } from "@/lib/i18n/ui";
+import { CROP_NAMES, STAGE_NAMES, DISTRICT_NAMES, THREAT_NAMES } from "@/lib/i18n/ui";
 import { WeatherStrip } from "@/components/shared/weather-panel";
 import { CaseCard } from "@/components/shared/case-card";
 import { cn, formatDate } from "@/lib/utils";
@@ -17,7 +17,7 @@ import { RiskBadge } from "@/components/ui/badge";
 import { InsuranceStatusCard } from "@/components/farmer/insurance";
 
 export default function FarmerHome() {
-  const { t, lang, farmerName, cases } = useApp();
+  const { t, tx, lang, farmerName, cases } = useApp();
   const f = DEMO_FARMER;
   const d = districtById(f.districtId);
   const plot = f.plots[0];
@@ -44,7 +44,7 @@ export default function FarmerHome() {
         <div className="flex items-start justify-between gap-3">
           <div>
             <h1 className="font-display text-[26px] font-bold leading-tight text-ink-900">{t.namaskar}, {lang === "en" ? farmerName.split(" ")[0] : f.nameLocal.split(" ")[0]} 👋</h1>
-            <div className="mt-1 flex items-center gap-1.5 text-sm text-ink-500"><MapPin className="h-3.5 w-3.5" /> {f.village}, {d.name}, Maharashtra</div>
+            <div className="mt-1 flex items-center gap-1.5 text-sm text-ink-500"><MapPin className="h-3.5 w-3.5" /> {tx(f.village)}, {DISTRICT_NAMES[lang][d.id]}, {t.maharashtra}</div>
           </div>
           <Link href="/farmer/reports" className="relative h-10 w-10 rounded-xl bg-white border border-ink-100 flex items-center justify-center text-ink-700 shadow-soft" aria-label="Alerts">
             <Bell className="h-4.5 w-4.5" />
@@ -59,7 +59,7 @@ export default function FarmerHome() {
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wider text-white/70">{t.currentCrop}</div>
               <div className="mt-0.5 font-display text-2xl font-bold">{crop.emoji} {CROP_NAMES[lang][crop.id]}</div>
-              <div className="mt-0.5 text-xs text-white/80 inline-flex items-center gap-1"><Sprout className="h-3.5 w-3.5" /> {STAGE_NAMES[lang][plot.stage]} · {plot.areaHa} ha · {plot.irrigation}</div>
+              <div className="mt-0.5 text-xs text-white/80 inline-flex items-center gap-1"><Sprout className="h-3.5 w-3.5" /> {STAGE_NAMES[lang][plot.stage]} · {plot.areaHa} ha · {tx(plot.irrigation)}</div>
             </div>
             <div className="text-right">
               <div className="text-[11px] font-semibold uppercase tracking-wider text-white/70">{t.todayRisk}</div>
@@ -98,7 +98,7 @@ export default function FarmerHome() {
           })}
         </div>
 
-        <WeatherStrip weather={weather} stage={plot.stage} districtName={d.name} />
+        <WeatherStrip weather={weather} stage={plot.stage} districtName={DISTRICT_NAMES[lang][d.id]} />
 
         <InsuranceStatusCard />
 
@@ -106,8 +106,8 @@ export default function FarmerHome() {
           <Link href={`/farmer/reports/${due.id}`} className="flex items-center gap-3 rounded-2xl border border-amber-500/30 bg-amber-100/50 p-3.5">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-amber-600 shadow-soft"><CalendarClock className="h-5 w-5" /></span>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold text-ink-900">{t.followUpDue}: {formatDate(due.followUpDue!)}</div>
-              <div className="text-xs text-ink-600 truncate">{cropById(due.cropId).name} · {due.id}</div>
+              <div className="text-sm font-semibold text-ink-900">{t.followUpDue}: {formatDate(due.followUpDue!, undefined, lang)}</div>
+              <div className="text-xs text-ink-600 truncate">{CROP_NAMES[lang][due.cropId]} · {due.id}</div>
             </div>
             <ChevronRight className="h-4 w-4 text-ink-400" />
           </Link>
@@ -124,9 +124,9 @@ export default function FarmerHome() {
         </div>
 
         <div className="rounded-2xl bg-forest-900 p-4 text-white">
-          <div className="flex items-center justify-between"><div className="text-[11px] font-semibold uppercase tracking-wider text-forest-300">{t.nearby}</div><RiskBadge level="HIGH" /></div>
+          <div className="flex items-center justify-between"><div className="text-[11px] font-semibold uppercase tracking-wider text-forest-300">{t.nearby}</div><RiskBadge level="HIGH" label={t.high} /></div>
           <div className="mt-1 font-display text-xl font-bold">36 {t.nearbyCases}</div>
-          <div className="text-xs text-white/70">Early Blight · Tomato · within 14 km of {f.village}</div>
+          <div className="text-xs text-white/70">{THREAT_NAMES[lang]["early-blight"]} · {CROP_NAMES[lang].tomato} · {tx(f.village)} {t.within14km}</div>
         </div>
       </div>
     </FarmerShell>

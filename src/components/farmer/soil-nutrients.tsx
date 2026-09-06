@@ -16,26 +16,27 @@ function nutrient(key: string, value: number, unit: string, ranges: [number, num
 }
 
 export function SoilNutrients({ soil, compact }: { soil: SoilCard; compact?: boolean }) {
-  const { t } = useApp();
+  const { t, tx } = useApp();
   const items = [
-    nutrient("N", soil.nitrogen, "kg/ha", [280, 560], "Nitrogen"),
-    nutrient("P", soil.phosphorus, "kg/ha", [10, 25], "Phosphorus"),
-    nutrient("K", soil.potassium, "kg/ha", [120, 280], "Potassium"),
-    nutrient("OC", soil.organicCarbon, "%", [0.5, 0.75], "Organic Carbon"),
+    nutrient("N", soil.nitrogen, "kg/ha", [280, 560], t.nitrogen),
+    nutrient("P", soil.phosphorus, "kg/ha", [10, 25], t.phosphorus),
+    nutrient("K", soil.potassium, "kg/ha", [120, 280], t.potassium),
+    nutrient("OC", soil.organicCarbon, "%", [0.5, 0.75], t.organicCarbon),
   ];
+  const levelLabel: Record<Level, string> = { Low: t.levelLow, Medium: t.levelMedium, High: t.levelHigh, Optimal: t.normal, Neutral: t.phNeutral, Alkaline: t.phAlkaline, Acidic: t.phAcidic };
   const phLevel: Level = soil.ph < 6.5 ? "Acidic" : soil.ph > 7.8 ? "Alkaline" : "Neutral";
   return (
     <div className="card-surface p-4">
       <div className="flex items-center justify-between">
         <h3 className="font-display font-bold text-ink-900">{t.nutrients}</h3>
-        <span className="text-[11px] text-ink-500">{soil.testedBy}</span>
+        <span className="text-[11px] text-ink-500">{tx(soil.testedBy)}</span>
       </div>
       <div className={cn("mt-4 grid gap-3", compact ? "grid-cols-4" : "grid-cols-2")}>
         {items.map((n, i) => (
           <motion.div key={n.key} initial={{ opacity: 0, scale: 0.96 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }} className="rounded-2xl border border-ink-100 bg-sand-50 p-3">
             <div className="flex items-center justify-between">
               <span className="flex h-8 w-8 items-center justify-center rounded-xl font-display text-sm font-bold text-white" style={{ background: n.color }}>{n.key}</span>
-              <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ background: `${n.color}22`, color: n.color }}>{n.level}</span>
+              <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ background: `${n.color}22`, color: n.color }}>{levelLabel[n.level]}</span>
             </div>
             <div className="mt-2 font-display text-xl font-bold text-ink-900">{n.value}<span className="ml-1 text-xs font-medium text-ink-500">{n.unit}</span></div>
             <div className="text-[11px] text-ink-500">{n.label}</div>
@@ -45,7 +46,7 @@ export function SoilNutrients({ soil, compact }: { soil: SoilCard; compact?: boo
       </div>
       {/* pH scale */}
       <div className="mt-4 rounded-2xl border border-ink-100 bg-sand-50 p-3">
-        <div className="flex items-center justify-between text-sm"><span className="font-semibold text-ink-900">Soil pH</span><span className="font-display text-lg font-bold text-ink-900">{soil.ph} <span className="text-xs font-medium text-forest-700">{phLevel}</span></span></div>
+        <div className="flex items-center justify-between text-sm"><span className="font-semibold text-ink-900">{t.soilPh}</span><span className="font-display text-lg font-bold text-ink-900">{soil.ph} <span className="text-xs font-medium text-forest-700">{levelLabel[phLevel]}</span></span></div>
         <div className="relative mt-2 h-2.5 rounded-full bg-[linear-gradient(90deg,#d13c3c_0%,#e09a1c_30%,#2f8f6b_50%,#3d8bd6_75%,#7e22ce_100%)]">
           <motion.span initial={{ left: "0%" }} whileInView={{ left: `${((soil.ph - 4) / 6) * 100}%` }} viewport={{ once: true }} transition={{ duration: 1.1 }} className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white ring-2 ring-ink-900 shadow" />
         </div>
@@ -53,8 +54,8 @@ export function SoilNutrients({ soil, compact }: { soil: SoilCard; compact?: boo
       </div>
       {!compact && (
         <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
-          <div className="rounded-xl bg-sand-100 p-3"><div className="text-ink-500">EC (salinity)</div><div className="font-semibold text-ink-900">{soil.ec} dS/m · Normal</div></div>
-          <div className="rounded-xl bg-sand-100 p-3"><div className="text-ink-500">Zinc</div><div className="font-semibold text-ink-900">{soil.zinc} ppm · Deficient</div></div>
+          <div className="rounded-xl bg-sand-100 p-3"><div className="text-ink-500">{t.ecSalinity}</div><div className="font-semibold text-ink-900">{soil.ec} dS/m · {t.normal}</div></div>
+          <div className="rounded-xl bg-sand-100 p-3"><div className="text-ink-500">{t.zinc}</div><div className="font-semibold text-ink-900">{soil.zinc} ppm · {t.deficient}</div></div>
         </div>
       )}
     </div>

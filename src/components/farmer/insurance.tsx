@@ -28,7 +28,7 @@ export function useStatusLabel() {
 
 /** Modal form. Pre-filled with the demo policy so one tap adds it. */
 export function InsuranceModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { t, lang, setInsurance } = useApp();
+  const { t, tx, lang, setInsurance } = useApp();
   const [form, setForm] = useState<CropInsurance>({ ...DEMO_INSURANCE, addedOn: new Date().toISOString().slice(0, 10) });
   const set = <K extends keyof CropInsurance>(k: K, v: CropInsurance[K]) => setForm((f) => ({ ...f, [k]: v }));
   const field = "block text-xs font-semibold text-ink-600";
@@ -39,7 +39,7 @@ export function InsuranceModal({ open, onClose }: { open: boolean; onClose: () =
         <label className={field}>{t.policyNumber}<Input className="mt-1 font-mono" value={form.policyNumber} onChange={(e) => set("policyNumber", e.target.value)} /></label>
         <div className="grid grid-cols-2 gap-2">
           <label className={field}>{t.insuredCrop}<Select className="mt-1" value={form.cropId} onChange={(e) => set("cropId", e.target.value)}>{CROPS.map((c) => <option key={c.id} value={c.id}>{c.emoji} {CROP_NAMES[lang][c.id]}</option>)}</Select></label>
-          <label className={field}>{t.season}<Select className="mt-1" value={form.season} onChange={(e) => set("season", e.target.value)}><option>Kharif 2026</option><option>Rabi 2026-27</option><option>Kharif 2025</option></Select></label>
+          <label className={field}>{t.season}<Select className="mt-1" value={form.season} onChange={(e) => set("season", e.target.value)}>{["Kharif 2026", "Rabi 2026-27", "Kharif 2025"].map((s) => <option key={s} value={s}>{tx(s)}</option>)}</Select></label>
         </div>
         <label className={field}>{t.provider}<Input className="mt-1" value={form.provider} onChange={(e) => set("provider", e.target.value)} /><Input className="mt-1.5" value={form.scheme} onChange={(e) => set("scheme", e.target.value)} /></label>
         <div className="grid grid-cols-2 gap-2">
@@ -50,7 +50,7 @@ export function InsuranceModal({ open, onClose }: { open: boolean; onClose: () =
           <label className={field}>{t.validity}<Input className="mt-1" type="date" value={form.validFrom} onChange={(e) => set("validFrom", e.target.value)} /></label>
           <label className={field}>&nbsp;<Input className="mt-1" type="date" value={form.validTo} onChange={(e) => set("validTo", e.target.value)} /></label>
         </div>
-        <label className={field}>{t.plot}<Select className="mt-1" value={form.plotId} onChange={(e) => set("plotId", e.target.value)}>{DEMO_FARMER.plots.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.areaHa} ha</option>)}</Select></label>
+        <label className={field}>{t.plot}<Select className="mt-1" value={form.plotId} onChange={(e) => set("plotId", e.target.value)}>{DEMO_FARMER.plots.map((p) => <option key={p.id} value={p.id}>{tx(p.name)} · {p.areaHa} ha</option>)}</Select></label>
         <div className="text-[11px] text-ink-500">{t.notAddedNote}</div>
         <div className="flex gap-2"><Button variant="ghost" onClick={onClose}>{t.back}</Button><Button className="flex-1" onClick={() => { setInsurance({ ...form, farmerId: DEMO_FARMER.id }); onClose(); }}><BadgeCheck className="h-4 w-4" /> {t.saveDocument}</Button></div>
       </div>
@@ -60,7 +60,7 @@ export function InsuranceModal({ open, onClose }: { open: boolean; onClose: () =
 
 /** Compact status card for the farmer dashboard. */
 export function InsuranceStatusCard({ className }: { className?: string }) {
-  const { t, lang, insurance } = useApp();
+  const { t, tx, lang, insurance } = useApp();
   const [open, setOpen] = useState(false);
   const label = useStatusLabel();
   if (insurance) {
@@ -70,7 +70,7 @@ export function InsuranceStatusCard({ className }: { className?: string }) {
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-forest-100 text-forest-800"><ShieldCheck className="h-5 w-5" /></span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2"><span className="text-sm font-semibold text-ink-900">{t.cropInsurance}</span><Badge tone={statusTone(insurance.status)} dot className="px-1.5 py-0 text-[10px]">{label(insurance.status)}</Badge></div>
-          <div className="mt-0.5 truncate text-xs text-ink-500">{crop.emoji} {CROP_NAMES[lang][crop.id]} · {insurance.season} · {money(insurance.coverage)} · <span className="font-mono">{insurance.policyNumber}</span></div>
+          <div className="mt-0.5 truncate text-xs text-ink-500">{crop.emoji} {CROP_NAMES[lang][crop.id]} · {tx(insurance.season)} · {money(insurance.coverage)} · <span className="font-mono">{insurance.policyNumber}</span></div>
         </div>
         <ChevronRight className="h-4 w-4 shrink-0 text-ink-300" />
       </Link>
@@ -84,7 +84,7 @@ export function InsuranceStatusCard({ className }: { className?: string }) {
           <div className="flex items-center gap-2"><span className="text-sm font-semibold text-ink-900">{t.cropInsurance}</span><Badge tone="neutral" className="px-1.5 py-0 text-[10px]">{t.notAdded} · {t.optional}</Badge></div>
           <div className="mt-0.5 text-xs text-ink-500">{t.addLater}</div>
         </div>
-        <Button size="sm" variant="secondary" onClick={() => setOpen(true)}><Plus className="h-3.5 w-3.5" /> Add</Button>
+        <Button size="sm" variant="secondary" onClick={() => setOpen(true)}><Plus className="h-3.5 w-3.5" /> {t.add}</Button>
       </div>
       <InsuranceModal open={open} onClose={() => setOpen(false)} />
     </>
@@ -93,7 +93,7 @@ export function InsuranceStatusCard({ className }: { className?: string }) {
 
 /** Full document card (Profile → My Documents). */
 export function InsuranceDocumentCard() {
-  const { t, lang, insurance, setInsurance } = useApp();
+  const { t, tx, lang, insurance, setInsurance } = useApp();
   const [open, setOpen] = useState(false);
   const label = useStatusLabel();
   if (!insurance) {
@@ -118,11 +118,11 @@ export function InsuranceDocumentCard() {
   const rows = [
     { icon: FileText, k: t.policyNumber, v: insurance.policyNumber, mono: true },
     { icon: Sprout, k: t.insuredCrop, v: `${crop.emoji} ${CROP_NAMES[lang][crop.id]}` },
-    { icon: Landmark, k: t.provider, v: `${insurance.provider} · ${insurance.scheme}` },
-    { icon: CalendarRange, k: t.season, v: insurance.season },
+    { icon: Landmark, k: t.provider, v: `${tx(insurance.provider)} · ${tx(insurance.scheme)}` },
+    { icon: CalendarRange, k: t.season, v: tx(insurance.season) },
     { icon: IndianRupee, k: t.coverage, v: money(insurance.coverage) },
-    { icon: CalendarRange, k: t.validity, v: `${formatDate(insurance.validFrom, { day: "numeric", month: "short", year: "numeric" })} – ${formatDate(insurance.validTo, { day: "numeric", month: "short", year: "numeric" })}` },
-    { icon: MapPin, k: t.plot, v: plot ? `${plot.name} · ${plot.areaHa} ha` : insurance.plotId },
+    { icon: CalendarRange, k: t.validity, v: `${formatDate(insurance.validFrom, { day: "numeric", month: "short", year: "numeric" }, lang)} – ${formatDate(insurance.validTo, { day: "numeric", month: "short", year: "numeric" }, lang)}` },
+    { icon: MapPin, k: t.plot, v: plot ? `${tx(plot.name)} · ${plot.areaHa} ha` : insurance.plotId },
   ];
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="card-surface overflow-hidden">
@@ -138,7 +138,7 @@ export function InsuranceDocumentCard() {
         </div>
         <div className="mt-3 flex items-end justify-between">
           <div><div className="text-[11px] text-white/70">{t.coverage}</div><div className="font-display text-2xl font-bold">{money(insurance.coverage)}</div></div>
-          <div className="text-right"><div className="text-[11px] text-white/70">{t.insuredCrop}</div><div className="font-semibold">{crop.emoji} {CROP_NAMES[lang][crop.id]} · {insurance.season}</div></div>
+          <div className="text-right"><div className="text-[11px] text-white/70">{t.insuredCrop}</div><div className="font-semibold">{crop.emoji} {CROP_NAMES[lang][crop.id]} · {tx(insurance.season)}</div></div>
         </div>
       </div>
       <div className="divide-y divide-ink-100">
@@ -153,7 +153,7 @@ export function InsuranceDocumentCard() {
         })}
       </div>
       <div className="flex items-center justify-between px-4 py-3 text-[11px] text-ink-500">
-        <span>Added {formatDate(insurance.addedOn, { day: "numeric", month: "short", year: "numeric" })} · reference only, no claims</span>
+        <span>{t.addedOn} {formatDate(insurance.addedOn, { day: "numeric", month: "short", year: "numeric" }, lang)} · {t.referenceOnly}</span>
         <button onClick={() => setInsurance(null)} className="inline-flex items-center gap-1 font-semibold text-ink-500 hover:text-risk-high"><Trash2 className="h-3 w-3" /> {t.remove}</button>
       </div>
     </motion.div>
@@ -167,10 +167,10 @@ function DocRow({ icon: Icon, title, done, skipped, onAdd, onSkip, onUndo, child
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-xs font-semibold text-earth-900"><Icon className="h-4 w-4" /> {title} <span className="font-normal text-ink-500">({t.optional})</span></div>
         {done ? null : skipped ? (
-          <button type="button" onClick={onUndo} className="text-[11px] font-semibold text-forest-700 hover:underline">Add</button>
+          <button type="button" onClick={onUndo} className="text-[11px] font-semibold text-forest-700 hover:underline">{t.add}</button>
         ) : (
           <div className="flex items-center gap-2">
-            <button type="button" onClick={onAdd} className="inline-flex items-center gap-1 rounded-lg bg-forest-800 px-2 py-1 text-[11px] font-semibold text-white"><Plus className="h-3 w-3" /> Add</button>
+            <button type="button" onClick={onAdd} className="inline-flex items-center gap-1 rounded-lg bg-forest-800 px-2 py-1 text-[11px] font-semibold text-white"><Plus className="h-3 w-3" /> {t.add}</button>
             <button type="button" onClick={onSkip} className="inline-flex items-center gap-1 text-[11px] font-semibold text-ink-500 hover:text-ink-800"><SkipForward className="h-3 w-3" /> {t.skipForNow}</button>
           </div>
         )}
@@ -193,7 +193,7 @@ export function OnboardingDocuments() {
         {soil === "add" && (
           <div className="mt-2 grid grid-cols-2 gap-2">
             <Input className="h-10 font-mono text-xs" placeholder="SHC-MH-NSK-0234981" />
-            <Select className="[&>select]:h-10" defaultValue=""><option value="">Soil type</option><option>Medium black</option><option>Deep black</option><option>Red loam</option><option>Laterite</option><option>Alluvial</option></Select>
+            <Select className="[&>select]:h-10" defaultValue=""><option value="">{t.soilTypeSelect}</option><option>Medium black</option><option>Deep black</option><option>Red loam</option><option>Laterite</option><option>Alluvial</option></Select>
           </div>
         )}
       </DocRow>
@@ -217,14 +217,14 @@ export function OnboardingDocuments() {
 }
 
 export function SoilCardDocument() {
-  const { t } = useApp();
+  const { t, tx } = useApp();
   const f = DEMO_FARMER;
   return (
     <Link href="/farmer/farm" className="card-surface flex items-center gap-3 p-4 transition-all hover:shadow-lift">
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-earth-100 text-earth-800"><Landmark className="h-5 w-5" /></span>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2"><span className="font-semibold text-ink-900">{t.soilHealthCard}</span><Badge tone="green" dot className="px-1.5 py-0 text-[10px]">{t.linkedTo}</Badge></div>
-        <div className="mt-0.5 truncate text-xs text-ink-500 font-mono">{f.soil.cardId} · {f.soil.testedBy}</div>
+        <div className="mt-0.5 truncate text-xs text-ink-500 font-mono">{f.soil.cardId} · {tx(f.soil.testedBy)}</div>
       </div>
       <ChevronRight className="h-4 w-4 shrink-0 text-ink-300" />
     </Link>

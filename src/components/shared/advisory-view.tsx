@@ -102,7 +102,7 @@ export function AdvisoryView({ threatId, cropId, severity, lang: forced, showHea
       </Section>
       <Section icon={Phone} title={L.expert} tone="bg-purple-50 text-purple-700" i={6}>{a.expert}</Section>
       <Section icon={ClipboardList} title={L.followUp} tone="bg-sky-100 text-sky-500" i={7}>{a.followUp}</Section>
-      {!compact && <div className="text-center text-[11px] text-ink-400 pt-1">Advisory generated from ICAR / MPKV IPM packages · Reviewed by KVK Nashik · v2026.09</div>}
+      {!compact && <div className="text-center text-[11px] text-ink-400 pt-1">{t.advisorySource}</div>}
     </div>
   );
 }

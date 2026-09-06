@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useReducer,
 import type { CaseStatus, CropCase, CropInsurance, Lang } from "../types";
 import { SEED_CASES } from "../mock/cases";
 import { UI, type UIStrings } from "../i18n/ui";
+import { translatePhrase } from "../i18n/phrases";
 
 interface State {
   lang: Lang;
@@ -50,6 +51,8 @@ function reducer(s: State, a: Action): State {
 
 interface Ctx extends State {
   t: UIStrings;
+  /** Translate a mock-data phrase (symptom, note, role, condition). Falls back to English. */
+  tx: (text: string) => string;
   setLang: (l: Lang) => void;
   login: (name?: string) => void;
   logout: () => void;
@@ -107,7 +110,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const skipInsurance = useCallback(() => dispatch({ type: "skipInsurance" }), []);
   const reset = useCallback(() => dispatch({ type: "reset" }), []);
 
-  const value = useMemo<Ctx>(() => ({ ...state, t: UI[state.lang], setLang, login, logout, addCase, updateCase, setStatus, addFollowUp, ackAlert, setInsurance, skipInsurance, reset }), [state, setLang, login, logout, addCase, updateCase, setStatus, addFollowUp, ackAlert, setInsurance, skipInsurance, reset]);
+  const value = useMemo<Ctx>(() => ({ ...state, t: UI[state.lang], tx: (text: string) => translatePhrase(text, state.lang), setLang, login, logout, addCase, updateCase, setStatus, addFollowUp, ackAlert, setInsurance, skipInsurance, reset }), [state, setLang, login, logout, addCase, updateCase, setStatus, addFollowUp, ackAlert, setInsurance, skipInsurance, reset]);
 
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
 }

@@ -6,14 +6,14 @@ import { FarmerShell } from "@/components/farmer/farmer-shell";
 import { useApp } from "@/lib/store/app-store";
 import { DEMO_FARMER } from "@/lib/mock/farmers";
 import { cropById, districtById } from "@/lib/mock/geo";
-import { CROP_NAMES, STAGE_NAMES } from "@/lib/i18n/ui";
+import { CROP_NAMES, STAGE_NAMES, DISTRICT_NAMES } from "@/lib/i18n/ui";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SoilNutrients } from "@/components/farmer/soil-nutrients";
 import { formatDate } from "@/lib/utils";
 
 export default function MyFarm() {
-  const { t, lang } = useApp();
+  const { t, tx, lang } = useApp();
   const f = DEMO_FARMER;
   const d = districtById(f.districtId);
 
@@ -28,13 +28,13 @@ export default function MyFarm() {
           <div className="mt-1 font-display text-xl font-bold">{lang === "en" ? f.name : f.nameLocal}</div>
           <div className="text-xs text-white/75 font-mono">{f.id}</div>
           <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-            <div><div className="text-white/60">{t.village}</div><div className="font-semibold">{f.village} · {f.taluka} taluka</div></div>
-            <div><div className="text-white/60">{t.district}</div><div className="font-semibold">{d.name}</div></div>
-            <div><div className="text-white/60">{t.landSize}</div><div className="font-semibold">{f.landHa} ha ({(f.landHa * 2.47).toFixed(1)} acres)</div></div>
-            <div><div className="text-white/60">Soil type</div><div className="font-semibold">{f.soil.soilType}</div></div>
+            <div><div className="text-white/60">{t.village}</div><div className="font-semibold">{tx(f.village)} · {tx(f.taluka)} {t.taluka}</div></div>
+            <div><div className="text-white/60">{t.district}</div><div className="font-semibold">{DISTRICT_NAMES[lang][d.id]}</div></div>
+            <div><div className="text-white/60">{t.landSize}</div><div className="font-semibold">{f.landHa} ha ({(f.landHa * 2.47).toFixed(1)} {t.acres})</div></div>
+            <div><div className="text-white/60">{t.soilType}</div><div className="font-semibold">{tx(f.soil.soilType)}</div></div>
           </div>
           <div className="mt-4 flex items-center justify-between text-[11px] text-white/70">
-            <span className="inline-flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {t.lastTest}: {formatDate(f.soil.lastTest, { day: "numeric", month: "short", year: "numeric" })}</span>
+            <span className="inline-flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {t.lastTest}: {formatDate(f.soil.lastTest, { day: "numeric", month: "short", year: "numeric" }, lang)}</span>
             <span className="font-mono">{f.soil.cardId}</span>
           </div>
         </motion.div>
@@ -43,13 +43,13 @@ export default function MyFarm() {
 
         <div className="card-surface p-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-display font-bold text-ink-900 inline-flex items-center gap-2"><FlaskConical className="h-4 w-4 text-forest-700" /> Recommendation from soil card</h3>
-            <Badge tone="green">Auto</Badge>
+            <h3 className="font-display font-bold text-ink-900 inline-flex items-center gap-2"><FlaskConical className="h-4 w-4 text-forest-700" /> {t.soilRecommendation}</h3>
+            <Badge tone="green">{t.auto}</Badge>
           </div>
           <ul className="mt-3 space-y-2 text-sm text-ink-700">
-            <li className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" /><span>Nitrogen is <b>low</b> (210 kg/ha). Apply 25% extra urea in 2 splits; low N weakens leaves against early blight.</span></li>
-            <li className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-forest-500" /><span>Potassium is <b>high</b>. Skip MOP this season; K helps disease tolerance.</span></li>
-            <li className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-earth-500" /><span>Organic carbon 0.58% is <b>medium</b>. Add 5 t/ha FYM or vermicompost before next sowing.</span></li>
+            <li className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" /><span dangerouslySetInnerHTML={{ __html: t.recN }} /></li>
+            <li className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-forest-500" /><span dangerouslySetInnerHTML={{ __html: t.recK }} /></li>
+            <li className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-earth-500" /><span dangerouslySetInnerHTML={{ __html: t.recOC }} /></li>
           </ul>
         </div>
 
@@ -63,10 +63,10 @@ export default function MyFarm() {
                   <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-forest-50 text-2xl">{c.emoji}</span>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-ink-900">{CROP_NAMES[lang][c.id]} <span className="text-xs font-normal text-ink-500">· {p.areaHa} ha</span></div>
-                    <div className="text-xs text-ink-500 truncate">{p.name}</div>
+                    <div className="text-xs text-ink-500 truncate">{tx(p.name)}</div>
                     <div className="mt-1 flex flex-wrap gap-1.5 text-[11px]">
                       <span className="inline-flex items-center gap-1 rounded-full bg-forest-100 px-2 py-0.5 font-semibold text-forest-800"><Sprout className="h-3 w-3" /> {STAGE_NAMES[lang][p.stage]}</span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 font-semibold text-sky-500"><Droplets className="h-3 w-3" /> {p.irrigation}</span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 font-semibold text-sky-500"><Droplets className="h-3 w-3" /> {tx(p.irrigation)}</span>
                     </div>
                   </div>
                 </motion.div>
@@ -84,17 +84,17 @@ export default function MyFarm() {
                 <div key={h.season} className="flex items-center gap-3 px-4 py-3">
                   <span className="text-xl">{c.emoji}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-ink-900">{CROP_NAMES[lang][c.id]} <span className="text-xs font-normal text-ink-500">· {h.season}</span></div>
-                    {h.issue && <div className="text-xs text-amber-600 inline-flex items-center gap-1"><Leaf className="h-3 w-3" /> {h.issue}</div>}
+                    <div className="text-sm font-semibold text-ink-900">{CROP_NAMES[lang][c.id]} <span className="text-xs font-normal text-ink-500">· {tx(h.season)}</span></div>
+                    {h.issue && <div className="text-xs text-amber-600 inline-flex items-center gap-1"><Leaf className="h-3 w-3" /> {tx(h.issue)}</div>}
                   </div>
-                  <div className="text-sm font-semibold text-ink-800">{h.yield}</div>
+                  <div className="text-sm font-semibold text-ink-800">{h.yield === "In progress" ? t.inProgress : h.yield}</div>
                 </div>
               );
             })}
           </div>
         </div>
 
-        <Button variant="outline" className="w-full"><Download className="h-4 w-4" /> Download Soil Health Card (PDF)</Button>
+        <Button variant="outline" className="w-full"><Download className="h-4 w-4" /> {t.downloadSoilCard}</Button>
       </div>
     </FarmerShell>
   );

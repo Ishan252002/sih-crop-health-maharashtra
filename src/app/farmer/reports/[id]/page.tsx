@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 
 export default function ReportDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { t, lang, cases, addFollowUp } = useApp();
+  const { t, tx, lang, cases, addFollowUp } = useApp();
   const router = useRouter();
   const c = cases.find((x) => x.id === id);
   const [open, setOpen] = useState(false);
@@ -28,7 +28,7 @@ export default function ReportDetail({ params }: { params: Promise<{ id: string 
 
   if (!c) {
     return (
-      <FarmerShell title={t.myReports} back="/farmer/reports"><div className="card-surface p-8 text-center text-sm text-ink-500">Report not found.</div></FarmerShell>
+      <FarmerShell title={t.myReports} back="/farmer/reports"><div className="card-surface p-8 text-center text-sm text-ink-500">{t.reportNotFound}</div></FarmerShell>
     );
   }
   const risk = computeRisk({ weather: weatherFor(c.districtId), cropId: c.cropId, stage: c.stage, threatId: c.ai.threatId, soil: DEMO_FARMER.soil, localCases: 20 });
@@ -59,14 +59,14 @@ export default function ReportDetail({ params }: { params: Promise<{ id: string 
             <div className="mt-3 flex items-start gap-3 rounded-xl bg-purple-50 p-3">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-purple-700 shadow-soft"><UserCheck className="h-4.5 w-4.5" /></span>
               <div className="text-[13px]">
-                <div className="font-semibold text-ink-900">{c.expertName}</div>
-                {c.expertThreatId && c.expertThreatId !== c.ai.threatId && <div className="text-purple-700 font-semibold">Corrected: {THREAT_NAMES[lang][c.ai.threatId]} → {THREAT_NAMES[lang][c.expertThreatId]}</div>}
-                {c.expertNote && <div className="text-ink-600 mt-0.5">{c.expertNote}</div>}
+                <div className="font-semibold text-ink-900">{tx(c.expertName)}</div>
+                {c.expertThreatId && c.expertThreatId !== c.ai.threatId && <div className="text-purple-700 font-semibold">{t.correctedLabel}: {THREAT_NAMES[lang][c.ai.threatId]} → {THREAT_NAMES[lang][c.expertThreatId]}</div>}
+                {c.expertNote && <div className="text-ink-600 mt-0.5">{tx(c.expertNote)}</div>}
               </div>
             </div>
           )}
           {c.status === "More Info Requested" && (
-            <Button className="mt-3 w-full" variant="amber" onClick={() => router.push("/farmer/check")}><Camera className="h-4 w-4" /> Upload requested photo</Button>
+            <Button className="mt-3 w-full" variant="amber" onClick={() => router.push("/farmer/check")}><Camera className="h-4 w-4" /> {t.uploadRequestedPhoto}</Button>
           )}
         </div>
 
@@ -75,14 +75,14 @@ export default function ReportDetail({ params }: { params: Promise<{ id: string 
         <div className="card-surface p-4">
           <div className="flex items-center justify-between">
             <div className="font-display font-bold text-ink-900 inline-flex items-center gap-2"><CalendarClock className="h-4 w-4 text-forest-700" /> {t.trackFollowUp}</div>
-            {c.followUpDue && <span className="text-xs text-ink-500">{t.followUpDue}: {formatDate(c.followUpDue)}</span>}
+            {c.followUpDue && <span className="text-xs text-ink-500">{t.followUpDue}: {formatDate(c.followUpDue, undefined, lang)}</span>}
           </div>
           <ol className="mt-3 space-y-2">
-            {c.followUps.length === 0 && <li className="text-sm text-ink-500">No observations yet. Re-scan the same plants in 5 days.</li>}
+            {c.followUps.length === 0 && <li className="text-sm text-ink-500">{t.noObservations}</li>}
             {c.followUps.map((f, i) => (
               <motion.li key={i} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} className="flex items-start gap-3 rounded-xl bg-sand-100 p-3">
                 <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", f.improved ? "bg-forest-100 text-forest-700" : "bg-red-50 text-risk-high")}>{f.improved ? <ThumbsUp className="h-4 w-4" /> : <ThumbsDown className="h-4 w-4" />}</span>
-                <div><div className="text-xs text-ink-500">{formatDate(f.date)}</div><div className="text-sm text-ink-800">{f.note}</div></div>
+                <div><div className="text-xs text-ink-500">{formatDate(f.date, undefined, lang)}</div><div className="text-sm text-ink-800">{tx(f.note)}</div></div>
               </motion.li>
             ))}
           </ol>
@@ -93,7 +93,7 @@ export default function ReportDetail({ params }: { params: Promise<{ id: string 
         </div>
 
         <Link href="/farmer/check" className="flex items-center justify-between rounded-2xl bg-forest-900 p-4 text-white">
-          <div><div className="font-display font-bold">Re-scan the same plants</div><div className="text-xs text-white/70">Compare with this report to close the loop</div></div>
+          <div><div className="font-display font-bold">{t.rescanTitle}</div><div className="text-xs text-white/70">{t.rescanSub}</div></div>
           <ArrowRight className="h-5 w-5" />
         </Link>
       </div>
@@ -104,7 +104,7 @@ export default function ReportDetail({ params }: { params: Promise<{ id: string 
             <button onClick={() => setImproved(true)} className={cn("flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-semibold", improved ? "border-forest-600 bg-forest-50 text-forest-800" : "border-ink-200 text-ink-600")}><ThumbsUp className="h-4 w-4" /> {t.improved}</button>
             <button onClick={() => setImproved(false)} className={cn("flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-semibold", !improved ? "border-risk-high bg-red-50 text-risk-high" : "border-ink-200 text-ink-600")}><XCircle className="h-4 w-4" /> {t.notImproved}</button>
           </div>
-          <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} placeholder="e.g. Removed lower leaves, no new spots after 3 days" className="w-full rounded-xl border border-ink-200 p-3 text-sm focus:border-forest-400 focus:outline-none focus:ring-2 focus:ring-forest-200" />
+          <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} placeholder={t.observationPlaceholder} className="w-full rounded-xl border border-ink-200 p-3 text-sm focus:border-forest-400 focus:outline-none focus:ring-2 focus:ring-forest-200" />
           <Button className="w-full" onClick={() => { addFollowUp(c.id, note || (improved ? "Condition improved" : "No improvement, spread continues"), improved); setNote(""); setOpen(false); }}>{t.done}</Button>
         </div>
       </Modal>
