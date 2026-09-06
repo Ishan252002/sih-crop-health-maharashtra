@@ -43,8 +43,8 @@ export const RESPONSE_TIMES = [
 ];
 
 export const IMPACT = [
-  { label: "Avg detection lead time", value: 9, suffix: " days earlier", desc: "vs. visible-damage reporting baseline" },
-  { label: "Pesticide sprays avoided", value: 31, suffix: "%", desc: "through IPM-first advisories" },
-  { label: "Expert response time", value: 3.4, suffix: " hrs", decimals: 1, desc: "median across pilot talukas" },
-  { label: "Farmers reached", value: 12480, suffix: "", desc: "registered across 15 districts" },
+  { label: "Detection lead time (pilot target)", value: 7, suffix: " days earlier", desc: "7-day risk forecast before visible symptoms" },
+  { label: "Sprays avoided (pilot target)", value: 31, suffix: "%", desc: "through IPM-first advisories" },
+  { label: "Expert response time (pilot target)", value: 3.4, suffix: " hrs", decimals: 1, desc: "median across pilot talukas" },
+  { label: "Farmers to reach (pilot target)", value: 12480, suffix: "", desc: "registered across 15 districts" },
 ];

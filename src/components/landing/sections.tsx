@@ -270,7 +270,7 @@ export function ImpactSection() {
         </div>
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
           {[
-            { icon: Sprout, t: "Reduced crop loss", d: "Alerts 9 days before visible damage give farmers a real window to act." },
+            { icon: Sprout, t: "Reduced crop loss", d: "Alerts up to 7 days before visible damage give farmers a real window to act." },
             { icon: BadgeIndianRupee, t: "Targeted pesticide use", d: "IPM-first advisories cut unnecessary sprays and residue risk." },
             { icon: ShieldCheck, t: "Better surveillance coverage", d: "Every scan is a data point. Every district gets a live picture." },
           ].map((x) => {
