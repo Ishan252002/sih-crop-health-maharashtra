@@ -17,8 +17,8 @@ export type SampleKey = "tomato-early-blight" | "leaf-blurry" | "upload";
  *  - lowConfidence: ambiguous tomato leaf → Early Blight (possible) · 61% · Expert Review Required
  */
 export const SAMPLE_IMAGES = {
-  clear: "/samples/tomato-early-blight.svg",
-  lowConfidence: "/samples/leaf-blurry.svg",
+  clear: "/samples/tomato-early-blight-clear.png",
+  lowConfidence: "/samples/tomato-early-blight-lowconf.png",
 } as const;
 
 interface Profile {
