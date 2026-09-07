@@ -111,6 +111,18 @@ export interface Farmer {
   avatarHue: number;
 }
 
+/** Output of the crop head. cropId is null when confidence is below CROP_ID_THRESHOLD. */
+export interface CropIdentification {
+  cropId: string | null;
+  confidence: number;
+  alternatives: { cropId: string; confidence: number }[];
+  /** "auto" = crop head, "manual" = farmer picked it after the crop head failed. */
+  source: "auto" | "manual";
+}
+
+/** Derived from the disease head. Not a separate model: the disease head owns the healthy classes. */
+export type HealthStatus = "Healthy" | "Diseased" | "Pest";
+
 export interface DiagnosisResult {
   threatId: string;
   confidence: number;
@@ -121,6 +133,9 @@ export interface DiagnosisResult {
   alternatives: { threatId: string; confidence: number }[];
   modelVersion: string;
   inferenceMs: number;
+  /** Optional so existing seed cases in mock/cases.ts stay valid. */
+  crop?: CropIdentification;
+  health?: HealthStatus;
 }
 
 export interface CropCase {

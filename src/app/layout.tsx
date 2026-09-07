@@ -1,11 +1,39 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Plus_Jakarta_Sans, Noto_Sans_Devanagari } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AppStoreProvider } from "@/lib/store/app-store";
 
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
-const jakarta = Plus_Jakarta_Sans({ variable: "--font-jakarta", subsets: ["latin"], display: "swap" });
-const devanagari = Noto_Sans_Devanagari({ variable: "--font-devanagari", subsets: ["devanagari"], weight: ["400", "500", "600", "700"], display: "swap" });
+/**
+ * Self-hosted variable fonts, loaded from public/fonts so the build makes no
+ * network request to any external font CDN. Same three families as before.
+ * Files are the official Fontsource builds; only the subsets actually used are bundled.
+ */
+const inter = localFont({
+  src: "../../public/fonts/inter-latin-wght-normal.woff2",
+  variable: "--font-inter",
+  weight: "100 900",
+  style: "normal",
+  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
+});
+
+const jakarta = localFont({
+  src: "../../public/fonts/plus-jakarta-sans-latin-wght-normal.woff2",
+  variable: "--font-jakarta",
+  weight: "200 800",
+  style: "normal",
+  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
+});
+
+const devanagari = localFont({
+  src: "../../public/fonts/noto-sans-devanagari-devanagari-wght-normal.woff2",
+  variable: "--font-devanagari",
+  weight: "100 900",
+  style: "normal",
+  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
+});
 
 export const metadata: Metadata = {
   title: { default: "KrishiRakshak · Maharashtra Crop Health Intelligence", template: "%s · KrishiRakshak" },

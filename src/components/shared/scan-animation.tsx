@@ -55,7 +55,7 @@ export function ScanAnimation({ image, onDone, title, stepMs = 900 }: { image: s
             </motion.div>
           ))}
         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[11px] font-medium text-white/85">
-          <span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-forest-300 animate-pulse" />CropNet-v2.3 · {t.onDevice}</span>
+          <span className="inline-flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-forest-300 animate-pulse" />MobileNetV3-Large · {t.simulated}</span>
           <span>{Math.min(100, Math.round((step / SCAN_STEPS.length) * 100))}%</span>
         </div>
       </div>

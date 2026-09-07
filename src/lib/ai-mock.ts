@@ -1,12 +1,41 @@
-import type { DiagnosisResult, Severity } from "./types";
+import type { CropIdentification, DiagnosisResult, HealthStatus, Severity } from "./types";
 
+/**
+ * Stages shown during the scan. These mirror the vision pipeline only.
+ * Risk scoring and the IPM advisory are deliberately NOT listed here: they are the
+ * rule engine (risk-engine.ts / i18n/advisories.ts), not neural network output.
+ */
 export const SCAN_STEPS = [
-  { key: "scan", label: "Scanning image", detail: "Normalising colour, exposure and leaf segmentation" },
-  { key: "symptoms", label: "Detecting symptoms", detail: "Locating lesions, spots, insects and discolouration" },
-  { key: "compare", label: "Comparing disease patterns", detail: "Matching against 42,000 field-validated Maharashtra samples" },
-  { key: "confidence", label: "Calculating confidence", detail: "Weighting weather, crop stage and local outbreak history" },
-  { key: "advisory", label: "Generating advisory", detail: "Composing IPM steps in English, Hindi and Marathi" },
+  { key: "preprocess", label: "Preparing image", detail: "Normalising colour, exposure and leaf segmentation" },
+  { key: "features", label: "Extracting features", detail: "Shared backbone over the segmented leaf region" },
+  { key: "crop", label: "Identifying crop", detail: "Crop head over the shared feature map" },
+  { key: "threat", label: "Identifying disease or pest", detail: "Disease head, healthy classes included" },
+  { key: "severity", label: "Estimating severity", detail: "Affected leaf area mapped to a severity band" },
 ] as const;
+
+/** Label shown wherever the app names the model. Never claims live inference. */
+export const MODEL_LABEL = "Mock inference · MobileNetV3-Large (proposed)";
+
+/**
+ * Proposed vision architecture, rendered by components/farmer/model-architecture.tsx.
+ * One shared backbone with two classification heads, not a cascade of separate models:
+ * a cascade compounds error and a wrong crop ID poisons everything below it with no recovery.
+ */
+export const MODEL_ARCHITECTURE = {
+  backbone: {
+    name: "MobileNetV3-Large",
+    detail: "About 5.4M parameters, built for on-device inference on low-end Android phones",
+  },
+  heads: [
+    { key: "crop", name: "Crop head", detail: "8 Maharashtra crops. Below 70% the farmer is asked to pick the crop." },
+    { key: "threat", name: "Disease / pest head", detail: "Disease, pest and healthy classes in one head. Below 75% the case goes to an expert." },
+    { key: "severity", name: "Severity estimator", detail: "Affected leaf area, banded into Mild / Moderate / Severe." },
+  ],
+  ruleEngine: [
+    { key: "risk", name: "Risk engine", detail: "Weather, crop stage, soil card and nearby cases. Transparent rules, every factor shown." },
+    { key: "advisory", name: "IPM advisory", detail: "Threat and severity mapped to IPM steps in English, Hindi and Marathi." },
+  ],
+} as const;
 
 export type SampleKey = "tomato-early-blight" | "leaf-blurry" | "upload";
 
@@ -83,15 +112,53 @@ const CROP_PROFILE: Record<string, Profile> = {
 };
 
 const LOW_CONF: Profile = {
-  threatId: "leaf-spot", confidence: 61, severity: "Mild", affectedArea: 8,
+  threatId: "early-blight", confidence: 61, severity: "Mild", affectedArea: 8,
   symptoms: ["Small dark spots, edges unclear", "Image partially blurred, low light", "Possible dust or spray residue overlap"],
-  reasoning: ["Spot texture partially matches Alternaria (0.61) but rings not resolved", "Low-light image reduces feature quality", "Early blight and bacterial spot remain plausible", "Confidence below 75% threshold, routing to expert"],
-  alternatives: [{ threatId: "early-blight", confidence: 29 }, { threatId: "whitefly", confidence: 6 }],
+  reasoning: ["Spot texture partially matches Alternaria (0.61) but rings not resolved", "Low-light image reduces feature quality", "Leaf spot and bacterial spot remain plausible", "Confidence below 75% threshold, routing to expert"],
+  alternatives: [{ threatId: "leaf-spot", confidence: 29 }, { threatId: "whitefly", confidence: 6 }],
 };
 
-export function simulateDiagnosis(cropId: string, sample: SampleKey): DiagnosisResult {
+/* ------------------------------------------------------------------ *
+ * Crop head
+ * ------------------------------------------------------------------ */
+
+/** Below this, the crop head has not identified anything and the farmer picks the crop. */
+export const CROP_ID_THRESHOLD = 70;
+
+const SAMPLE_CROP: Record<Exclude<SampleKey, "upload">, Omit<CropIdentification, "source">> = {
+  "tomato-early-blight": { cropId: "tomato", confidence: 97, alternatives: [{ cropId: "soybean", confidence: 2 }] },
+  "leaf-blurry": { cropId: "tomato", confidence: 91, alternatives: [{ cropId: "soybean", confidence: 5 }] },
+};
+
+/**
+ * Crop identification is tied to the known demo samples only.
+ * An arbitrary photo returns a below-threshold result so the UI falls back to manual
+ * selection instead of confidently naming a crop it never looked at.
+ */
+export function identifyCrop(sample: SampleKey): CropIdentification {
+  if (sample === "upload") return { cropId: null, confidence: 38, alternatives: [], source: "auto" };
+  return { ...SAMPLE_CROP[sample], source: "auto" };
+}
+
+export const cropIdentified = (c: CropIdentification): c is CropIdentification & { cropId: string } =>
+  c.cropId !== null && c.confidence >= CROP_ID_THRESHOLD;
+
+export const manualCrop = (cropId: string): CropIdentification => ({ cropId, confidence: 100, alternatives: [], source: "manual" });
+
+/* ------------------------------------------------------------------ *
+ * Health status (derived from the disease head, not a separate model)
+ * ------------------------------------------------------------------ */
+
+const PEST_THREATS = new Set(["bollworm", "whitefly", "aphids", "stem-borer", "thrips", "mites"]);
+
+export function healthFor(threatId: string): HealthStatus {
+  if (threatId === "healthy") return "Healthy";
+  return PEST_THREATS.has(threatId) ? "Pest" : "Diseased";
+}
+
+export function simulateDiagnosis(cropId: string, sample: SampleKey, crop?: CropIdentification): DiagnosisResult {
   const p = sample === "leaf-blurry" ? LOW_CONF : (CROP_PROFILE[cropId] ?? CROP_PROFILE.tomato);
-  return { ...p, modelVersion: "CropNet-v2.3 (EfficientNet-B4 + YOLOv8)", inferenceMs: 1180 + Math.round(Math.random() * 300) };
+  return { ...p, crop, health: healthFor(p.threatId), modelVersion: MODEL_LABEL, inferenceMs: 1180 + Math.round(Math.random() * 300) };
 }
 
 export const EXPERT_THRESHOLD = 75;

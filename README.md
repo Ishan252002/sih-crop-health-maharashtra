@@ -18,25 +18,26 @@ npm run build && npm start
 | Experience | Route | What it shows |
 | --- | --- | --- |
 | Landing | `/` | Hero, problem, "How the intelligence flows", feature showcases, impact, CTA |
-| Farmer app (mobile-first, Marathi by default) | `/farmer/login` → `/farmer` | Login/registration with optional documents (Soil Health Card, Crop Insurance, Skip for now), home with compact insurance status card, Check Crop (upload → AI scan → result), Risk Forecast, Advisory (EN/HI/MR), My Reports + follow-up, Nearby Expert, Soil Health Card, Profile → My Documents |
+| Farmer app (mobile-first, Marathi by default) | `/farmer/login` → `/farmer` | Login/registration with optional documents (Soil Health Card, Crop Insurance, Skip for now), home with compact insurance status card, Check Crop (photo → AI scan → automatic crop + disease detection → result, with manual crop fallback), Risk Forecast, Advisory (EN/HI/MR), My Reports + follow-up, Nearby Expert, Soil Health Card, Profile → My Documents |
 | Expert console | `/expert` | Review queue, full case review (image, AI reasoning, weather, soil, history), Confirm / Correct / Request info / Refer, validation history |
 | Government platform | `/gov` | Overview KPIs + live hotspot map + charts, Surveillance matrix and trap network, Live Hotspots, Disease Analytics, Farmers registry, Expert Validation, Alerts + advisory push, Reports |
 
-## Demo script (13 steps)
+## Demo script (14 steps)
 
 1. `/farmer/login` → Login with the demo Farmer ID (OTP `1234`).
 2. Home shows Nashik, Tomato at fruiting stage, today's outbreak risk.
-3. **Check My Crop** → crop Tomato, stage Fruiting, district Nashik → Next.
-4. Pick the sample "Tomato leaf, clear photo" → **Scan now**. The 5-step AI scanning animation runs.
-5. Result: **Early Blight · 94% · Moderate**, symptoms, reasoning, alternatives.
+3. **Check My Crop** → the farmer only uploads a photo. No crop selection.
+4. Pick the sample "Tomato leaf, clear photo" → **Scan now**. The 5-stage vision pipeline runs (prepare → features → crop head → disease head → severity).
+5. Result: **Tomato · 97%** identified automatically, then **Early Blight · 94% · Moderate**, symptoms, reasoning, alternatives.
 6. Same screen combines weather (29 °C, 82 %, 18 mm), crop stage and the soil card.
 7. Risk gauge animates to **HIGH**.
-8. **View advisory** → 8-part IPM advisory. Switch English / हिन्दी / मराठी in one tap.
-9. Back in Check Crop, use the sample "Leaf photo, low light" → 61 % confidence → "Expert Review Required" → **Save report**.
-10. Open `/expert` → the new case is first in the queue → open it → **Correct Diagnosis** (see the retraining note) or **Confirm**.
-11. `/gov/hotspots` → the case is counted in the Nashik cluster; click a marker for the detail panel; **Push advisory**.
-12. `/gov` → KPIs, district-wise risk, charts and the map aggregate everything.
-13. The top banner reads "High-risk cluster detected in Nashik".
+8. Open **AI model and technical details** to show the proposed MobileNetV3-Large backbone, the two heads and the rule engine, plus the simulated-inference notice.
+9. **View advisory** → 8-part IPM advisory. Switch English / हिन्दी / मराठी in one tap.
+10. Back in Check Crop, use the sample "Leaf photo, low light" → Tomato 91 %, Early Blight 61 % → "Expert Review Required" → **Save report**.
+11. Upload any photo that is not a demo sample → crop confidence 38 % → "Crop not identified" → the farmer picks the crop manually and the flow continues.
+12. Open `/expert` → the new case is first in the queue → open it → **Correct Diagnosis** (see the retraining note) or **Confirm**.
+13. `/gov/hotspots` → the case is counted in the Nashik cluster; click a marker for the detail panel; **Push advisory**.
+14. `/gov` → KPIs, district-wise risk, charts and the map aggregate everything. The top banner reads "High-risk cluster detected in Nashik".
 
 State (language, login, saved cases, expert decisions, documents) persists in `localStorage`. Reset it from Farmer → Profile → "Reset demo data" (keeps you logged in).
 

@@ -9,15 +9,17 @@ import { THREAT_NAMES } from "./ui";
 type Pair = [hi: string, mr: string];
 
 export const PHRASES: Record<string, Pair> = {
-  // ---- scan steps
-  "Scanning image": ["छवि स्कैन हो रही है", "प्रतिमा स्कॅन होत आहे"],
+  // ---- scan steps (staged vision pipeline)
+  "Preparing image": ["छवि तैयार की जा रही है", "प्रतिमा तयार केली जात आहे"],
   "Normalising colour, exposure and leaf segmentation": ["रंग, एक्सपोज़र और पत्ती विभाजन सामान्य किया जा रहा है", "रंग, एक्सपोजर आणि पान विभाजन सामान्य केले जात आहे"],
-  "Detecting symptoms": ["लक्षण पहचाने जा रहे हैं", "लक्षणे शोधली जात आहेत"],
-  "Locating lesions, spots, insects and discolouration": ["धब्बे, कीट और रंग-परिवर्तन खोजे जा रहे हैं", "ठिपके, कीटक आणि रंगबदल शोधले जात आहेत"],
-  "Comparing disease patterns": ["रोग पैटर्न की तुलना", "रोग नमुन्यांची तुलना"],
-  "Matching against 42,000 field-validated Maharashtra samples": ["42,000 क्षेत्र-सत्यापित महाराष्ट्र नमूनों से मिलान", "42,000 क्षेत्र-पडताळलेल्या महाराष्ट्र नमुन्यांशी जुळवणी"],
-  "Calculating confidence": ["विश्वास की गणना", "विश्वासाची गणना"],
-  "Weighting weather, crop stage and local outbreak history": ["मौसम, फसल अवस्था और स्थानीय प्रकोप इतिहास का भार", "हवामान, पीक अवस्था आणि स्थानिक प्रादुर्भाव इतिहासाचे भारांकन"],
+  "Extracting features": ["विशेषताएँ निकाली जा रही हैं", "वैशिष्ट्ये काढली जात आहेत"],
+  "Shared backbone over the segmented leaf region": ["पत्ती क्षेत्र पर साझा बैकबोन", "पानाच्या भागावर सामायिक बॅकबोन"],
+  "Identifying crop": ["फसल पहचानी जा रही है", "पीक ओळखले जात आहे"],
+  "Crop head over the shared feature map": ["साझा फीचर मैप पर फसल हेड", "सामायिक फीचर मॅपवर पीक हेड"],
+  "Identifying disease or pest": ["रोग या कीट पहचाना जा रहा है", "रोग किंवा कीड ओळखली जात आहे"],
+  "Disease head, healthy classes included": ["रोग हेड, स्वस्थ श्रेणियाँ शामिल", "रोग हेड, निरोगी वर्गांसह"],
+  "Estimating severity": ["गंभीरता का अनुमान", "तीव्रतेचा अंदाज"],
+  "Affected leaf area mapped to a severity band": ["प्रभावित पत्ती क्षेत्र से गंभीरता स्तर", "बाधित पानाच्या क्षेत्रावरून तीव्रता पातळी"],
   "Generating advisory": ["सलाह तैयार हो रही है", "सल्ला तयार होत आहे"],
   "Composing IPM steps in English, Hindi and Marathi": ["अंग्रेज़ी, हिंदी और मराठी में IPM चरण तैयार", "इंग्रजी, हिंदी आणि मराठीत IPM टप्पे तयार"],
   // ---- weather
