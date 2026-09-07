@@ -37,18 +37,113 @@ export const MODEL_ARCHITECTURE = {
   ],
 } as const;
 
-export type SampleKey = "tomato-early-blight" | "leaf-blurry" | "upload";
+/**
+ * Identity of a built-in demo image shipped with the prototype.
+ * The UI passes this id straight into the detection function, so the app never has to
+ * infer which sample was chosen from a browser filename. These are controlled inputs.
+ */
+export type DemoSampleId =
+  | "tomato-early-blight-clear"
+  | "tomato-early-blight-lowconf"
+  | "cotton-bollworm"
+  | "soybean-leaf-spot"
+  | "grapes-powdery-mildew"
+  | "onion-downy-mildew"
+  | "sugarcane-stem-borer"
+  | "rice-stem-borer"
+  | "wheat-aphids";
+
+/**
+ * What the detection function is given.
+ *  - demo:   an explicit built-in sample id, so the simulated result is deterministic.
+ *  - upload: only the metadata a browser File actually exposes. No pixels are read and
+ *            no crop is inferred from the filename, because IMG_1234.jpg says nothing.
+ */
+export type DetectionInput =
+  | { kind: "demo"; sampleId: DemoSampleId }
+  | { kind: "upload"; name: string; size: number; lastModified: number };
+
+export interface DemoSample {
+  id: DemoSampleId;
+  cropId: string;
+  src: string;
+  /** Crop head output for this controlled sample. Always above CROP_ID_THRESHOLD. */
+  crop: { confidence: number; alternatives: { cropId: string; confidence: number }[] };
+  /**
+   * True when this sample exists to demonstrate the disease head falling below
+   * EXPERT_THRESHOLD and routing to an agronomist. The crop head still succeeds.
+   */
+  expertRoute?: boolean;
+}
 
 /**
  * Demo sample images used by Check Crop, the landing hero and the AI-detection feature section.
- * To use real field photos, drop the files into public/samples/ and change ONLY these two paths.
- *  - clear:         primary tomato leaf → Early Blight · 94% · Moderate · Confirmed
- *  - lowConfidence: ambiguous tomato leaf → Early Blight (possible) · 61% · Expert Review Required
+ * To use real field photos, drop the files into public/samples/ and change ONLY these paths.
+ *  - clear:         primary tomato leaf -> Early Blight / 94% / Moderate / Confirmed
+ *  - lowConfidence: ambiguous tomato leaf -> Early Blight (possible) / 61% / Expert Review Required
  */
 export const SAMPLE_IMAGES = {
   clear: "/samples/tomato-early-blight-clear.png",
   lowConfidence: "/samples/tomato-early-blight-lowconf.png",
 } as const;
+
+/**
+ * The controlled demo set, one entry per crop the prototype demonstrates.
+ * Confidence values are simulated, not measured. The disease each sample resolves to
+ * comes from the existing CROP_PROFILE table below, so nothing new is invented here.
+ */
+export const DEMO_SAMPLES: Record<DemoSampleId, DemoSample> = {
+  "tomato-early-blight-clear": {
+    id: "tomato-early-blight-clear", cropId: "tomato", src: SAMPLE_IMAGES.clear,
+    crop: { confidence: 97, alternatives: [{ cropId: "soybean", confidence: 2 }, { cropId: "cotton", confidence: 1 }] },
+  },
+  "tomato-early-blight-lowconf": {
+    id: "tomato-early-blight-lowconf", cropId: "tomato", src: SAMPLE_IMAGES.lowConfidence,
+    crop: { confidence: 89, alternatives: [{ cropId: "soybean", confidence: 7 }, { cropId: "cotton", confidence: 3 }] },
+    expertRoute: true,
+  },
+  "cotton-bollworm": {
+    id: "cotton-bollworm", cropId: "cotton", src: "/samples/cotton-boll.svg",
+    crop: { confidence: 94, alternatives: [{ cropId: "soybean", confidence: 4 }, { cropId: "tomato", confidence: 1 }] },
+  },
+  "soybean-leaf-spot": {
+    id: "soybean-leaf-spot", cropId: "soybean", src: "/samples/soy-leaf.svg",
+    crop: { confidence: 93, alternatives: [{ cropId: "cotton", confidence: 5 }, { cropId: "tomato", confidence: 2 }] },
+  },
+  "grapes-powdery-mildew": {
+    id: "grapes-powdery-mildew", cropId: "grapes", src: "/samples/grape-powdery.svg",
+    crop: { confidence: 95, alternatives: [{ cropId: "tomato", confidence: 3 }, { cropId: "soybean", confidence: 1 }] },
+  },
+  "onion-downy-mildew": {
+    id: "onion-downy-mildew", cropId: "onion", src: "/samples/onion-leaf.svg",
+    crop: { confidence: 91, alternatives: [{ cropId: "wheat", confidence: 5 }, { cropId: "rice", confidence: 3 }] },
+  },
+  "sugarcane-stem-borer": {
+    id: "sugarcane-stem-borer", cropId: "sugarcane", src: "/samples/cane-stem.svg",
+    crop: { confidence: 92, alternatives: [{ cropId: "rice", confidence: 5 }, { cropId: "wheat", confidence: 2 }] },
+  },
+  "rice-stem-borer": {
+    id: "rice-stem-borer", cropId: "rice", src: "/samples/rice-stem-borer.svg",
+    crop: { confidence: 90, alternatives: [{ cropId: "wheat", confidence: 7 }, { cropId: "sugarcane", confidence: 2 }] },
+  },
+  "wheat-aphids": {
+    id: "wheat-aphids", cropId: "wheat", src: "/samples/wheat-aphids.svg",
+    crop: { confidence: 88, alternatives: [{ cropId: "rice", confidence: 9 }, { cropId: "sugarcane", confidence: 2 }] },
+  },
+};
+
+/** Render order for the demo tiles on the upload screen. */
+export const DEMO_SAMPLE_ORDER: DemoSampleId[] = [
+  "tomato-early-blight-clear",
+  "cotton-bollworm",
+  "soybean-leaf-spot",
+  "grapes-powdery-mildew",
+  "onion-downy-mildew",
+  "sugarcane-stem-borer",
+  "rice-stem-borer",
+  "wheat-aphids",
+  "tomato-early-blight-lowconf",
+];
 
 interface Profile {
   threatId: string;
@@ -125,23 +220,98 @@ const LOW_CONF: Profile = {
 /** Below this, the crop head has not identified anything and the farmer picks the crop. */
 export const CROP_ID_THRESHOLD = 70;
 
-const SAMPLE_CROP: Record<Exclude<SampleKey, "upload">, Omit<CropIdentification, "source">> = {
-  "tomato-early-blight": { cropId: "tomato", confidence: 97, alternatives: [{ cropId: "soybean", confidence: 2 }] },
-  "leaf-blurry": { cropId: "tomato", confidence: 91, alternatives: [{ cropId: "soybean", confidence: 5 }] },
-};
+const CROP_ORDER = ["tomato", "cotton", "soybean", "grapes", "onion", "sugarcane", "rice", "wheat"];
 
 /**
- * Crop identification is tied to the known demo samples only.
- * An arbitrary photo returns a below-threshold result so the UI falls back to manual
- * selection instead of confidently naming a crop it never looked at.
+ * FNV-1a over the metadata a browser File actually gives us: name, byte size and
+ * last-modified timestamp. Two different photos give two different numbers, and the
+ * same photo gives the same numbers on every reload, so the demo never jumps around.
+ * This is a stable spread, not recognition. It looks at no pixels.
  */
-export function identifyCrop(sample: SampleKey): CropIdentification {
-  if (sample === "upload") return { cropId: null, confidence: 38, alternatives: [], source: "auto" };
-  return { ...SAMPLE_CROP[sample], source: "auto" };
+function metaSeed(name: string, size: number, lastModified: number): number {
+  const key = `${name}|${size}|${lastModified}`;
+  let h = 2166136261;
+  for (let i = 0; i < key.length; i++) {
+    h ^= key.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return Math.abs(h);
+}
+
+/**
+ * Crop head.
+ *
+ * Controlled demo sample  -> the known crop, 88-97%, two plausible alternatives.
+ * Arbitrary browser upload -> a deterministic below-threshold result carrying a real
+ *                             top guess and alternatives, so the farmer confirms one
+ *                             pre-selected crop instead of starting from a blank grid.
+ *
+ * There is no universal fallback confidence. An uploaded photo lands somewhere in the
+ * 42-58 band derived from its own metadata, never a fixed value for every photo.
+ */
+export function identifyCrop(input: DetectionInput): CropIdentification {
+  if (input.kind === "demo") {
+    const sample = DEMO_SAMPLES[input.sampleId];
+    if (!sample) throw new Error(`Unknown demo sample: ${input.sampleId}`);
+    return { cropId: sample.cropId, confidence: sample.crop.confidence, alternatives: sample.crop.alternatives, source: "auto" };
+  }
+
+  const seed = metaSeed(input.name, input.size, input.lastModified);
+  const top = CROP_ORDER[seed % CROP_ORDER.length];
+  const rest = CROP_ORDER.filter((c) => c !== top);
+  const second = rest[(seed >>> 3) % rest.length];
+  const third = rest.filter((c) => c !== second)[(seed >>> 7) % (rest.length - 1)];
+
+  const confidence = 42 + (seed % 17); // 42-58, always below CROP_ID_THRESHOLD
+  return {
+    cropId: null,
+    confidence,
+    alternatives: [
+      { cropId: top, confidence },
+      { cropId: second, confidence: Math.max(6, Math.round(confidence * 0.55)) },
+      { cropId: third, confidence: Math.max(3, Math.round(confidence * 0.28)) },
+    ],
+    source: "auto",
+  };
 }
 
 export const cropIdentified = (c: CropIdentification): c is CropIdentification & { cropId: string } =>
   c.cropId !== null && c.confidence >= CROP_ID_THRESHOLD;
+
+/** Closest match from a below-threshold crop head result, used to pre-select the manual picker. */
+export const topGuess = (c: CropIdentification): string | null => c.cropId ?? c.alternatives[0]?.cropId ?? null;
+
+/**
+ * Discriminated result of the crop head.
+ *
+ * The three cases are semantically different and the UI must not collapse them:
+ *  - ok             the crop is known, skip manual selection entirely
+ *  - low_confidence the head has an opinion but not enough of one, farmer confirms
+ *  - error          the head could not run at all, which is NOT a prediction
+ *
+ * `crop` carries the existing CropIdentification shape so the diagnosis flow,
+ * AnalysisStages and the saved CropCase record keep working unchanged.
+ */
+export type DetectionResult =
+  | { status: "ok"; crop: CropIdentification & { cropId: string } }
+  | { status: "low_confidence"; crop: CropIdentification; topGuess: string | null }
+  | { status: "error"; reason: string };
+
+/**
+ * Single entry point for the Check Crop flow. Never throws: an unexpected failure
+ * comes back as status "error" with a technical reason for the console, so the UI
+ * can say "detection unavailable" instead of presenting a failure as a prediction.
+ */
+export function detectCrop(input: DetectionInput): DetectionResult {
+  let identification: CropIdentification;
+  try {
+    identification = identifyCrop(input);
+  } catch (err) {
+    return { status: "error", reason: err instanceof Error ? err.message : String(err) };
+  }
+  if (cropIdentified(identification)) return { status: "ok", crop: identification };
+  return { status: "low_confidence", crop: identification, topGuess: topGuess(identification) };
+}
 
 export const manualCrop = (cropId: string): CropIdentification => ({ cropId, confidence: 100, alternatives: [], source: "manual" });
 
@@ -156,8 +326,9 @@ export function healthFor(threatId: string): HealthStatus {
   return PEST_THREATS.has(threatId) ? "Pest" : "Diseased";
 }
 
-export function simulateDiagnosis(cropId: string, sample: SampleKey, crop?: CropIdentification): DiagnosisResult {
-  const p = sample === "leaf-blurry" ? LOW_CONF : (CROP_PROFILE[cropId] ?? CROP_PROFILE.tomato);
+export function simulateDiagnosis(cropId: string, input: DetectionInput, crop?: CropIdentification): DiagnosisResult {
+  const expertRoute = input.kind === "demo" && DEMO_SAMPLES[input.sampleId]?.expertRoute === true;
+  const p = expertRoute ? LOW_CONF : (CROP_PROFILE[cropId] ?? CROP_PROFILE.tomato);
   return { ...p, crop, health: healthFor(p.threatId), modelVersion: MODEL_LABEL, inferenceMs: 1180 + Math.round(Math.random() * 300) };
 }
 

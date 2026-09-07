@@ -1,5 +1,5 @@
 import type { Lang } from "../types";
-import { THREAT_NAMES } from "./ui";
+import { CROP_NAMES, THREAT_NAMES } from "./ui";
 
 /**
  * Phrase dictionary for strings that live in mock data (symptoms, reasoning, notes,
@@ -83,6 +83,11 @@ export const PHRASES: Record<string, Pair> = {
   "Condition improved": ["स्थिति में सुधार", "स्थितीत सुधारणा"], "No improvement, spread continues": ["कोई सुधार नहीं, फैलाव जारी", "सुधारणा नाही, प्रसार सुरू"],
 };
 
+function cropName(english: string, lang: Lang) {
+  const id = Object.entries(CROP_NAMES.en).find(([, n]) => n === english)?.[0];
+  return id ? CROP_NAMES[lang][id] : english;
+}
+
 function threatName(english: string, lang: Lang) {
   const id = Object.entries(THREAT_NAMES.en).find(([, n]) => n === english)?.[0];
   return id ? THREAT_NAMES[lang][id] : english;
@@ -90,6 +95,7 @@ function threatName(english: string, lang: Lang) {
 
 const RULES: { re: RegExp; hi: (m: RegExpMatchArray) => string; mr: (m: RegExpMatchArray) => string }[] = [
   { re: /^Corrected to (.+)\. Sample added to retraining set\.$/, hi: (m) => `${threatName(m[1], "hi")} में सुधारा गया। नमूना पुनः-प्रशिक्षण सेट में जोड़ा गया।`, mr: (m) => `${threatName(m[1], "mr")} असे दुरुस्त केले. नमुना पुनर्प्रशिक्षण संचात जोडला.` },
+  { re: /^(.+), sample photo$/, hi: (m) => `${cropName(m[1], "hi")}, \u0928\u092e\u0942\u0928\u093e \u092b\u094b\u091f\u094b`, mr: (m) => `${cropName(m[1], "mr")}, \u0928\u092e\u0941\u0928\u093e \u092b\u094b\u091f\u094b` },
   { re: /^Plot (\d+)$/, hi: (m) => `भाग ${m[1]}`, mr: (m) => `प्लॉट ${m[1]}` },
 ];
 

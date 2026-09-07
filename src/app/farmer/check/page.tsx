@@ -14,7 +14,7 @@ import { ScanAnimation } from "@/components/shared/scan-animation";
 import { DiagnosisResultCard } from "@/components/farmer/diagnosis-result";
 import { AnalysisStages } from "@/components/farmer/analysis-stages";
 import { ModelArchitecture } from "@/components/farmer/model-architecture";
-import { simulateDiagnosis, needsExpert, identifyCrop, cropIdentified, manualCrop, SAMPLE_IMAGES, type SampleKey } from "@/lib/ai-mock";
+import { simulateDiagnosis, needsExpert, detectCrop, manualCrop, topGuess, DEMO_SAMPLES, DEMO_SAMPLE_ORDER, type DemoSampleId, type DetectionInput } from "@/lib/ai-mock";
 import { weatherFor } from "@/lib/mock/weather";
 import { computeRisk } from "@/lib/risk-engine";
 import { HOTSPOTS } from "@/lib/mock/hotspots";
@@ -38,13 +38,15 @@ export default function CheckCrop() {
   const [districtId, setDistrictId] = useState(DEMO_FARMER.districtId);
   const [stage, setStage] = useState<CropStage>("Fruiting");
   const [image, setImage] = useState<string | null>(null);
-  const [sample, setSample] = useState<SampleKey>("upload");
+  const [detection, setDetection] = useState<DetectionInput | null>(null);
+  const [detectionFailed, setDetectionFailed] = useState(false);
   const [imageLabel, setImageLabel] = useState("Uploaded photo");
   const [ai, setAi] = useState<DiagnosisResult | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
 
+  const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
   const weather = weatherFor(districtId);
   const nearby = HOTSPOTS.filter((h) => h.districtId === districtId).reduce((a, h) => a + h.cases, 0);
   const risk = useMemo(
@@ -52,18 +54,37 @@ export default function CheckCrop() {
     [ai, weather, cropId, stage, nearby],
   );
 
+  /** Arbitrary browser upload. Only File metadata is available, never the crop identity. */
+  /** On low confidence the picker leads with the crop head's own shortlist, then everything else. */
+  const rankedCrops = useMemo(() => {
+    if (!crop) return CROPS;
+    const shortlist = [topGuess(crop), ...crop.alternatives.map((a) => a.cropId)].filter(Boolean) as string[];
+    const seen = new Set<string>();
+    const ranked = shortlist.flatMap((id) => {
+      if (seen.has(id)) return [];
+      const c = CROPS.find((x) => x.id === id);
+      if (!c) return [];
+      seen.add(id);
+      return [c];
+    });
+    return [...ranked, ...CROPS.filter((c) => !seen.has(c.id))];
+  }, [crop]);
+
+  /** Arbitrary browser upload. Only File metadata is available, never the crop identity. */
   const pick = (file: File) => {
     const url = URL.createObjectURL(file);
     setImage(url);
-    setSample("upload");
+    setDetection({ kind: "upload", name: file.name, size: file.size, lastModified: file.lastModified });
     setImageLabel(file.name);
   };
-  const pickSample = (key: SampleKey, src: string, label: string) => {
-    setImage(src);
-    setSample(key);
+  /** Built-in demo image. The sample id is passed to the crop head, not the filename. */
+  const pickSample = (sampleId: DemoSampleId, label: string) => {
+    setImage(DEMO_SAMPLES[sampleId].src);
+    setDetection({ kind: "demo", sampleId });
     setImageLabel(label);
   };
   const startScan = () => {
+    setDetectionFailed(false);
     setAi(null);
     setCrop(null);
     setCropId(null);
@@ -73,23 +94,41 @@ export default function CheckCrop() {
 
   /** Crop head runs first. Below threshold the farmer picks the crop instead of the app guessing. */
   const onScanDone = useCallback(() => {
-    const identification = identifyCrop(sample);
-    setCrop(identification);
-    if (!cropIdentified(identification)) {
+    if (!detection) return;
+    const result = detectCrop(detection);
+
+    if (result.status === "error") {
+      // Farmers never see the technical reason. They see "detection unavailable".
+      console.error("[crop-head] simulated detection failed:", result.reason);
+      setCrop(null);
+      setDetectionFailed(true);
       setStep("identify");
       return;
     }
-    setCropId(identification.cropId);
-    setStage(defaultStage(identification.cropId));
-    setAi(simulateDiagnosis(identification.cropId, sample, identification));
+
+    setCrop(result.crop);
+
+    if (result.status === "low_confidence") {
+      if (result.topGuess) {
+        setPendingCropId(result.topGuess);
+        setStage(defaultStage(result.topGuess));
+      }
+      setStep("identify");
+      return;
+    }
+
+    setCropId(result.crop.cropId);
+    setStage(defaultStage(result.crop.cropId));
+    setAi(simulateDiagnosis(result.crop.cropId, detection, result.crop));
     setStep("result");
-  }, [sample]);
+  }, [detection]);
 
   const confirmManualCrop = () => {
+    if (!detection) return;
     const identification = manualCrop(pendingCropId);
     setCrop(identification);
     setCropId(pendingCropId);
-    setAi(simulateDiagnosis(pendingCropId, sample, identification));
+    setAi(simulateDiagnosis(pendingCropId, detection, identification));
     setStep("result");
   };
 
@@ -116,6 +155,8 @@ export default function CheckCrop() {
 
   const restart = () => {
     setStep("upload");
+    setDetection(null);
+    setDetectionFailed(false);
     setImage(null);
     setAi(null);
     setCrop(null);
@@ -174,18 +215,34 @@ export default function CheckCrop() {
             </div>
             <div className="card-surface p-3">
               <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-ink-600"><Sparkles className="h-3.5 w-3.5 text-amber-500" /> {t.useSample}</div>
-              <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => pickSample("tomato-early-blight", SAMPLE_IMAGES.clear, "Tomato leaf, clear photo")} className={cn("overflow-hidden rounded-xl border text-left transition-all", sample === "tomato-early-blight" && image ? "border-forest-600 ring-2 ring-forest-200" : "border-ink-100")}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={SAMPLE_IMAGES.clear} alt="" className="aspect-[16/10] w-full object-cover" />
-                  <div className="px-2 py-1.5 text-[11px] font-semibold text-ink-800">{t.sampleClear}</div>
-                </button>
-                <button onClick={() => pickSample("leaf-blurry", SAMPLE_IMAGES.lowConfidence, "Leaf photo, low light")} className={cn("overflow-hidden rounded-xl border text-left transition-all", sample === "leaf-blurry" && image ? "border-forest-600 ring-2 ring-forest-200" : "border-ink-100")}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={SAMPLE_IMAGES.lowConfidence} alt="" className="aspect-[16/10] w-full object-cover" />
-                  <div className="px-2 py-1.5 text-[11px] font-semibold text-ink-800">{t.sampleBlurry} <span className="text-amber-600">{t.toExpert}</span></div>
-                </button>
+              <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+                {DEMO_SAMPLE_ORDER.map((id) => {
+                  const ds = DEMO_SAMPLES[id];
+                  const label =
+                    id === "tomato-early-blight-clear" ? t.sampleClear
+                    : id === "tomato-early-blight-lowconf" ? t.sampleBlurry
+                    : `${CROP_NAMES[lang][ds.cropId]}, ${t.samplePhoto}`;
+                  const storedLabel =
+                    id === "tomato-early-blight-clear" ? "Tomato leaf, clear photo"
+                    : id === "tomato-early-blight-lowconf" ? "Leaf photo, low light"
+                    : `${CROP_NAMES.en[ds.cropId]}, sample photo`;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => pickSample(id, storedLabel)}
+                      className={cn("w-[134px] shrink-0 overflow-hidden rounded-xl border text-left transition-all", detection?.kind === "demo" && detection.sampleId === id && image ? "border-forest-600 ring-2 ring-forest-200" : "border-ink-100")}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={ds.src} alt="" className="aspect-[16/10] w-full bg-forest-50 object-cover" />
+                      <div className="px-2 py-1.5 text-[11px] font-semibold leading-tight text-ink-800">
+                        {label}
+                        {ds.expertRoute && <span className="block text-amber-600">{t.toExpert}</span>}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
+              <p className="mt-2 text-[11px] leading-snug text-ink-500">{t.uploadOwnNote}</p>
             </div>
 
             <details className="card-surface p-3">
@@ -203,25 +260,35 @@ export default function CheckCrop() {
         )}
 
         {step === "scan" && image && (
-          <motion.div key="scan" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.div key="scan" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
+            {demoMode && (
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-ink-100 px-3 py-1.5 text-[11px] font-semibold text-ink-600">
+                <Sparkles className="h-3.5 w-3.5 text-amber-500" /> {t.demoModeChip}
+              </div>
+            )}
             <ScanAnimation image={image} onDone={onScanDone} title={t.analyzing} />
           </motion.div>
         )}
 
-        {step === "identify" && image && crop && (
+        {step === "identify" && image && (crop || detectionFailed) && (
           <motion.div key="identify" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
             <div className="flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-amber-100/60 p-4">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-amber-600 shadow-soft"><AlertCircle className="h-5 w-5" /></span>
               <div>
-                <div className="font-display font-bold text-ink-900">{t.cropNotIdentified}</div>
-                <div className="mt-0.5 text-xs font-semibold text-amber-600">{t.confidence}: {crop.confidence}%</div>
-                <p className="mt-1.5 text-[13px] text-ink-700">{t.cropNotIdentifiedHelp}</p>
+                <div className="font-display font-bold text-ink-900">{detectionFailed ? t.detectionUnavailable : t.cropNotIdentified}</div>
+                {!detectionFailed && crop && <div className="mt-0.5 text-xs font-semibold text-amber-600">{t.confidence}: {crop.confidence}%</div>}
+                <p className="mt-1.5 text-[13px] text-ink-700">{detectionFailed ? t.detectionUnavailableHelp : t.cropNotIdentifiedHelp}</p>
+                {!detectionFailed && crop && crop.alternatives.length > 0 && (
+                  <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-white px-2 py-1 text-[11.5px] font-semibold text-ink-700 shadow-soft">
+                    {t.closestMatch}: {CROP_NAMES[lang][crop.alternatives[0].cropId]} · {crop.alternatives[0].confidence}%
+                  </div>
+                )}
               </div>
             </div>
             <div>
               <h2 className="font-display text-lg font-bold text-ink-900">{t.selectCropManually}</h2>
               <div className="mt-2 grid grid-cols-4 gap-2">
-                {CROPS.map((c) => (
+                {rankedCrops.map((c) => (
                   <button key={c.id} onClick={() => { setPendingCropId(c.id); setStage(defaultStage(c.id)); }} className={cn("flex flex-col items-center gap-1 rounded-2xl border p-2.5 transition-all", pendingCropId === c.id ? "border-forest-600 bg-forest-50 shadow-glow-green" : "border-ink-100 bg-white hover:border-forest-300")}>
                     <span className="text-2xl">{c.emoji}</span>
                     <span className="text-[11px] font-semibold text-ink-800 leading-tight text-center">{CROP_NAMES[lang][c.id]}</span>
