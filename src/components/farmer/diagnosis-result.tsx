@@ -51,7 +51,15 @@ export function DiagnosisResultCard({ image, cropId, ai, risk, riskScore, riskEx
               <div className="flex justify-between text-xs"><span className="font-medium text-ink-600">{t.affectedArea}</span><span className="font-semibold text-ink-900">{ai.affectedArea}%</span></div>
               <ProgressBar value={ai.affectedArea} color="bg-earth-500" className="mt-1" />
             </div>
-            <div className="text-[10.5px] text-ink-400">{ai.modelVersion} · {ai.inferenceMs} ms</div>
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10.5px] font-semibold text-ink-500">{ai.inferenceKind === "vision" ? t.liveVisionInference : t.demoInference}</span>
+                {ai.inferenceKind === "vision" && (
+                  <span className="rounded-full bg-amber-500/15 px-1.5 py-px text-[9.5px] font-bold uppercase tracking-wide text-amber-700">{t.experimentalBadge}</span>
+                )}
+              </div>
+              <div className="text-[10.5px] text-ink-400">{ai.modelVersion} · {ai.inferenceMs} ms</div>
+            </div>
           </div>
         </div>
       </motion.div>

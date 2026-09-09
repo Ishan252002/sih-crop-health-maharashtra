@@ -1,4 +1,5 @@
 import type { CropIdentification, DiagnosisResult, HealthStatus, Severity } from "./types";
+import type { AnalysisResult } from "./vision/types";
 
 /**
  * Stages shown during the scan. These mirror the vision pipeline only.
@@ -13,8 +14,11 @@ export const SCAN_STEPS = [
   { key: "severity", label: "Estimating severity", detail: "Affected leaf area mapped to a severity band" },
 ] as const;
 
-/** Label shown wherever the app names the model. Never claims live inference. */
-export const MODEL_LABEL = "Mock inference · MobileNetV3-Large (proposed)";
+/**
+ * Detail line for controlled demo results. Pairs with the "Demo inference" title on the
+ * result card. Never appears on a real-upload result.
+ */
+export const MODEL_LABEL = "MobileNetV3-Large · proposed";
 
 /**
  * Proposed vision architecture, rendered by components/farmer/model-architecture.tsx.
@@ -53,15 +57,6 @@ export type DemoSampleId =
   | "rice-stem-borer"
   | "wheat-aphids";
 
-/**
- * What the detection function is given.
- *  - demo:   an explicit built-in sample id, so the simulated result is deterministic.
- *  - upload: only the metadata a browser File actually exposes. No pixels are read and
- *            no crop is inferred from the filename, because IMG_1234.jpg says nothing.
- */
-export type DetectionInput =
-  | { kind: "demo"; sampleId: DemoSampleId }
-  | { kind: "upload"; name: string; size: number; lastModified: number };
 
 export interface DemoSample {
   id: DemoSampleId;
@@ -220,59 +215,17 @@ const LOW_CONF: Profile = {
 /** Below this, the crop head has not identified anything and the farmer picks the crop. */
 export const CROP_ID_THRESHOLD = 70;
 
-const CROP_ORDER = ["tomato", "cotton", "soybean", "grapes", "onion", "sugarcane", "rice", "wheat"];
-
 /**
- * FNV-1a over the metadata a browser File actually gives us: name, byte size and
- * last-modified timestamp. Two different photos give two different numbers, and the
- * same photo gives the same numbers on every reload, so the demo never jumps around.
- * This is a stable spread, not recognition. It looks at no pixels.
- */
-function metaSeed(name: string, size: number, lastModified: number): number {
-  const key = `${name}|${size}|${lastModified}`;
-  let h = 2166136261;
-  for (let i = 0; i < key.length; i++) {
-    h ^= key.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return Math.abs(h);
-}
-
-/**
- * Crop head.
+ * Crop head for controlled demo samples only.
  *
- * Controlled demo sample  -> the known crop, 88-97%, two plausible alternatives.
- * Arbitrary browser upload -> a deterministic below-threshold result carrying a real
- *                             top guess and alternatives, so the farmer confirms one
- *                             pre-selected crop instead of starting from a blank grid.
- *
- * There is no universal fallback confidence. An uploaded photo lands somewhere in the
- * 42-58 band derived from its own metadata, never a fixed value for every photo.
+ * There is no simulated path for arbitrary uploads any more. A real farmer photo goes to
+ * /api/analyze-crop and is analysed by an actual vision model. Guessing a crop from file
+ * metadata was removed because it was not recognition and should never have looked like it.
  */
-export function identifyCrop(input: DetectionInput): CropIdentification {
-  if (input.kind === "demo") {
-    const sample = DEMO_SAMPLES[input.sampleId];
-    if (!sample) throw new Error(`Unknown demo sample: ${input.sampleId}`);
-    return { cropId: sample.cropId, confidence: sample.crop.confidence, alternatives: sample.crop.alternatives, source: "auto" };
-  }
-
-  const seed = metaSeed(input.name, input.size, input.lastModified);
-  const top = CROP_ORDER[seed % CROP_ORDER.length];
-  const rest = CROP_ORDER.filter((c) => c !== top);
-  const second = rest[(seed >>> 3) % rest.length];
-  const third = rest.filter((c) => c !== second)[(seed >>> 7) % (rest.length - 1)];
-
-  const confidence = 42 + (seed % 17); // 42-58, always below CROP_ID_THRESHOLD
-  return {
-    cropId: null,
-    confidence,
-    alternatives: [
-      { cropId: top, confidence },
-      { cropId: second, confidence: Math.max(6, Math.round(confidence * 0.55)) },
-      { cropId: third, confidence: Math.max(3, Math.round(confidence * 0.28)) },
-    ],
-    source: "auto",
-  };
+export function identifyCrop(sampleId: DemoSampleId): CropIdentification {
+  const sample = DEMO_SAMPLES[sampleId];
+  if (!sample) throw new Error(`Unknown demo sample: ${sampleId}`);
+  return { cropId: sample.cropId, confidence: sample.crop.confidence, alternatives: sample.crop.alternatives, source: "auto" };
 }
 
 export const cropIdentified = (c: CropIdentification): c is CropIdentification & { cropId: string } =>
@@ -280,38 +233,6 @@ export const cropIdentified = (c: CropIdentification): c is CropIdentification &
 
 /** Closest match from a below-threshold crop head result, used to pre-select the manual picker. */
 export const topGuess = (c: CropIdentification): string | null => c.cropId ?? c.alternatives[0]?.cropId ?? null;
-
-/**
- * Discriminated result of the crop head.
- *
- * The three cases are semantically different and the UI must not collapse them:
- *  - ok             the crop is known, skip manual selection entirely
- *  - low_confidence the head has an opinion but not enough of one, farmer confirms
- *  - error          the head could not run at all, which is NOT a prediction
- *
- * `crop` carries the existing CropIdentification shape so the diagnosis flow,
- * AnalysisStages and the saved CropCase record keep working unchanged.
- */
-export type DetectionResult =
-  | { status: "ok"; crop: CropIdentification & { cropId: string } }
-  | { status: "low_confidence"; crop: CropIdentification; topGuess: string | null }
-  | { status: "error"; reason: string };
-
-/**
- * Single entry point for the Check Crop flow. Never throws: an unexpected failure
- * comes back as status "error" with a technical reason for the console, so the UI
- * can say "detection unavailable" instead of presenting a failure as a prediction.
- */
-export function detectCrop(input: DetectionInput): DetectionResult {
-  let identification: CropIdentification;
-  try {
-    identification = identifyCrop(input);
-  } catch (err) {
-    return { status: "error", reason: err instanceof Error ? err.message : String(err) };
-  }
-  if (cropIdentified(identification)) return { status: "ok", crop: identification };
-  return { status: "low_confidence", crop: identification, topGuess: topGuess(identification) };
-}
 
 export const manualCrop = (cropId: string): CropIdentification => ({ cropId, confidence: 100, alternatives: [], source: "manual" });
 
@@ -326,11 +247,34 @@ export function healthFor(threatId: string): HealthStatus {
   return PEST_THREATS.has(threatId) ? "Pest" : "Diseased";
 }
 
-export function simulateDiagnosis(cropId: string, input: DetectionInput, crop?: CropIdentification): DiagnosisResult {
-  const expertRoute = input.kind === "demo" && DEMO_SAMPLES[input.sampleId]?.expertRoute === true;
-  const p = expertRoute ? LOW_CONF : (CROP_PROFILE[cropId] ?? CROP_PROFILE.tomato);
-  return { ...p, crop, health: healthFor(p.threatId), modelVersion: MODEL_LABEL, inferenceMs: 1180 + Math.round(Math.random() * 300) };
+export function simulateDiagnosis(cropId: string, sampleId: DemoSampleId, crop?: CropIdentification): DiagnosisResult {
+  const p = DEMO_SAMPLES[sampleId]?.expertRoute ? LOW_CONF : (CROP_PROFILE[cropId] ?? CROP_PROFILE.tomato);
+  return { ...p, crop, health: healthFor(p.threatId), modelVersion: MODEL_LABEL, inferenceKind: "demo", inferenceMs: 1180 + Math.round(Math.random() * 300) };
 }
 
 export const EXPERT_THRESHOLD = 75;
 export const needsExpert = (confidence: number) => confidence < EXPERT_THRESHOLD;
+
+/* ------------------------------------------------------------------ *
+ * Controlled demo analysis
+ * ------------------------------------------------------------------ */
+
+/**
+ * Full analysis for a controlled demo sample.
+ *
+ * Deterministic on purpose: these are judge-demo inputs and must behave identically every
+ * time. Returns the same AnalysisResult shape the real vision path returns, so Check Crop
+ * has one set of branches regardless of where the result came from.
+ */
+export function analyzeDemoSample(sampleId: DemoSampleId): AnalysisResult {
+  let crop: CropIdentification;
+  try {
+    crop = identifyCrop(sampleId);
+  } catch (err) {
+    return { status: "error", source: "demo", code: "unknown_sample", reason: err instanceof Error ? err.message : String(err) };
+  }
+  if (!cropIdentified(crop)) {
+    return { status: "low_confidence", source: "demo", topGuess: topGuess(crop), confidence: crop.confidence, alternatives: crop.alternatives, reason: "below_threshold" };
+  }
+  return { status: "ok", source: "demo", crop, diagnosis: simulateDiagnosis(crop.cropId, sampleId, crop) };
+}

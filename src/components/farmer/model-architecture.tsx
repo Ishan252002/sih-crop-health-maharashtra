@@ -6,7 +6,8 @@ import { useApp } from "@/lib/store/app-store";
 
 /**
  * Judge-facing technical panel. Collapsed by default so the farmer flow stays simple.
- * States plainly that inference is simulated and that MobileNetV3 is the proposed backbone.
+ * Separates the proposed production architecture from what actually runs today, and never
+ * implies the live-upload model is agriculturally trained or accuracy-validated.
  */
 export function ModelArchitecture() {
   const { t, tx } = useApp();
@@ -21,11 +22,27 @@ export function ModelArchitecture() {
 
       <div className="mt-3 flex items-start gap-2 rounded-xl bg-amber-100/60 p-3 text-[12.5px] text-amber-600">
         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-        <span>{t.simulationNotice}</span>
+        <span>{t.architectureNotice}</span>
       </div>
 
       <div className="mt-4">
-        <div className="text-[10.5px] font-semibold uppercase tracking-wider text-ink-500">{t.proposedBackbone}</div>
+        <div className="text-[10.5px] font-semibold uppercase tracking-wider text-ink-500">{t.inferencePathsTitle}</div>
+        <ul className="mt-1.5 space-y-1.5">
+          {[
+            { key: "demo", title: t.pathDemoTitle, body: t.pathDemoBody },
+            { key: "live", title: t.pathLiveTitle, body: t.pathLiveBody },
+            { key: "roadmap", title: t.pathRoadmapTitle, body: t.pathRoadmapBody },
+          ].map((p) => (
+            <li key={p.key} className="rounded-xl border border-ink-100 bg-white p-3">
+              <div className="text-[13px] font-semibold text-ink-900">{p.title}</div>
+              <div className="text-[12px] text-ink-600">{p.body}</div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-4">
+        <div className="text-[10.5px] font-semibold uppercase tracking-wider text-ink-500">{t.proposedProductionArchitecture}</div>
         <div className="mt-1.5 rounded-2xl border border-forest-200 bg-forest-50 p-3">
           <div className="font-display font-bold text-ink-900">{backbone.name}</div>
           <div className="mt-0.5 text-[12.5px] text-ink-600">{tx(backbone.detail)}</div>

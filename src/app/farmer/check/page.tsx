@@ -14,7 +14,10 @@ import { ScanAnimation } from "@/components/shared/scan-animation";
 import { DiagnosisResultCard } from "@/components/farmer/diagnosis-result";
 import { AnalysisStages } from "@/components/farmer/analysis-stages";
 import { ModelArchitecture } from "@/components/farmer/model-architecture";
-import { simulateDiagnosis, needsExpert, detectCrop, manualCrop, topGuess, DEMO_SAMPLES, DEMO_SAMPLE_ORDER, type DemoSampleId, type DetectionInput } from "@/lib/ai-mock";
+import { needsExpert, analyzeDemoSample, manualCrop, DEMO_SAMPLES, DEMO_SAMPLE_ORDER, type DemoSampleId } from "@/lib/ai-mock";
+import { analyzeUploadedImage } from "@/lib/vision/client";
+import { toStoredImage } from "@/lib/image";
+import type { AnalysisResult } from "@/lib/vision/types";
 import { weatherFor } from "@/lib/mock/weather";
 import { computeRisk } from "@/lib/risk-engine";
 import { HOTSPOTS } from "@/lib/mock/hotspots";
@@ -22,6 +25,9 @@ import type { CropCase, CropIdentification, CropStage, DiagnosisResult } from "@
 import { cn, pad } from "@/lib/utils";
 
 type Step = "upload" | "scan" | "identify" | "result";
+
+/** What is loaded on the upload screen. A demo tile carries its id, a real photo carries the File. */
+type Source = { kind: "demo"; sampleId: DemoSampleId } | { kind: "upload"; file: File };
 
 const defaultStage = (cropId: string): CropStage => {
   const stages = cropById(cropId).stages;
@@ -38,8 +44,11 @@ export default function CheckCrop() {
   const [districtId, setDistrictId] = useState(DEMO_FARMER.districtId);
   const [stage, setStage] = useState<CropStage>("Fruiting");
   const [image, setImage] = useState<string | null>(null);
-  const [detection, setDetection] = useState<DetectionInput | null>(null);
-  const [detectionFailed, setDetectionFailed] = useState(false);
+  const [source, setSource] = useState<Source | null>(null);
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  /** Durable copy of an uploaded photo. A blob: URL cannot survive localStorage. */
+  const [storedImage, setStoredImage] = useState<string | null>(null);
+  const pending = useRef<Promise<AnalysisResult> | null>(null);
   const [imageLabel, setImageLabel] = useState("Uploaded photo");
   const [ai, setAi] = useState<DiagnosisResult | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
@@ -57,8 +66,11 @@ export default function CheckCrop() {
   /** Arbitrary browser upload. Only File metadata is available, never the crop identity. */
   /** On low confidence the picker leads with the crop head's own shortlist, then everything else. */
   const rankedCrops = useMemo(() => {
-    if (!crop) return CROPS;
-    const shortlist = [topGuess(crop), ...crop.alternatives.map((a) => a.cropId)].filter(Boolean) as string[];
+    const shortlist =
+      analysis?.status === "low_confidence"
+        ? ([analysis.topGuess, ...analysis.alternatives.map((a) => a.cropId)].filter(Boolean) as string[])
+        : [];
+    if (shortlist.length === 0) return CROPS;
     const seen = new Set<string>();
     const ranked = shortlist.flatMap((id) => {
       if (seen.has(id)) return [];
@@ -68,23 +80,38 @@ export default function CheckCrop() {
       return [c];
     });
     return [...ranked, ...CROPS.filter((c) => !seen.has(c.id))];
-  }, [crop]);
+  }, [analysis]);
 
-  /** Arbitrary browser upload. Only File metadata is available, never the crop identity. */
+  /** Real farmer photo. The file itself is sent to the server for actual image inference. */
   const pick = (file: File) => {
+    if (image?.startsWith("blob:")) URL.revokeObjectURL(image);
     const url = URL.createObjectURL(file);
     setImage(url);
-    setDetection({ kind: "upload", name: file.name, size: file.size, lastModified: file.lastModified });
+    setSource({ kind: "upload", file });
     setImageLabel(file.name);
+    // Downscaled data URL prepared in the background so the saved report keeps its thumbnail.
+    setStoredImage(null);
+    void toStoredImage(file)
+      .then(setStoredImage)
+      .catch((err) => console.error("[check-crop] could not build a stored thumbnail:", err));
   };
-  /** Built-in demo image. The sample id is passed to the crop head, not the filename. */
+  /** Built-in demo image. The sample id is passed to the mock crop head, never a filename. */
   const pickSample = (sampleId: DemoSampleId, label: string) => {
+    if (image?.startsWith("blob:")) URL.revokeObjectURL(image);
+    // Demo tiles are static public paths, already durable.
+    setStoredImage(null);
     setImage(DEMO_SAMPLES[sampleId].src);
-    setDetection({ kind: "demo", sampleId });
+    setSource({ kind: "demo", sampleId });
     setImageLabel(label);
   };
   const startScan = () => {
-    setDetectionFailed(false);
+    if (!source) return;
+    setAnalysis(null);
+    // Real inference starts now so the scan animation covers the network round trip.
+    pending.current =
+      source.kind === "upload"
+        ? analyzeUploadedImage(source.file, { cropStage: stage, location: districtId })
+        : Promise.resolve(analyzeDemoSample(source.sampleId));
     setAi(null);
     setCrop(null);
     setCropId(null);
@@ -93,22 +120,19 @@ export default function CheckCrop() {
   };
 
   /** Crop head runs first. Below threshold the farmer picks the crop instead of the app guessing. */
-  const onScanDone = useCallback(() => {
-    if (!detection) return;
-    const result = detectCrop(detection);
+  const onScanDone = useCallback(async () => {
+    const result = (await pending.current) ?? { status: "error" as const, source: "vision" as const, code: "network" as const, reason: "No analysis was started" };
+    setAnalysis(result);
 
     if (result.status === "error") {
-      // Farmers never see the technical reason. They see "detection unavailable".
-      console.error("[crop-head] simulated detection failed:", result.reason);
+      console.error(`[check-crop] analysis failed (${result.code}):`, result.reason);
       setCrop(null);
-      setDetectionFailed(true);
       setStep("identify");
       return;
     }
 
-    setCrop(result.crop);
-
     if (result.status === "low_confidence") {
+      setCrop(null);
       if (result.topGuess) {
         setPendingCropId(result.topGuess);
         setStage(defaultStage(result.topGuess));
@@ -117,19 +141,24 @@ export default function CheckCrop() {
       return;
     }
 
+    setCrop(result.crop);
     setCropId(result.crop.cropId);
     setStage(defaultStage(result.crop.cropId));
-    setAi(simulateDiagnosis(result.crop.cropId, detection, result.crop));
+    setAi(result.diagnosis);
     setStep("result");
-  }, [detection]);
+  }, []);
 
+  /**
+   * Only reachable when the crop head was unsure. For a real photo we deliberately do NOT
+   * run a diagnosis here: the model could not read the image, so claiming a disease after
+   * the farmer names the crop would be an invention. The case goes to an agronomist instead.
+   */
   const confirmManualCrop = () => {
-    if (!detection) return;
+    if (!source) return;
     const identification = manualCrop(pendingCropId);
     setCrop(identification);
     setCropId(pendingCropId);
-    setAi(simulateDiagnosis(pendingCropId, detection, identification));
-    setStep("result");
+    router.push(`/farmer/expert?crop=${pendingCropId}&stage=${stage}`);
   };
 
   const save = () => {
@@ -138,7 +167,7 @@ export default function CheckCrop() {
     const id = `MH-${d.code}-2026-${pad(500 + cases.filter((c) => c.source === "farmer").length + 1)}`;
     const c: CropCase = {
       id, farmerId: DEMO_FARMER.id, farmerName, village: DEMO_FARMER.village, districtId, cropId, stage,
-      image: image!, imageLabel, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+      image: storedImage ?? image!, imageLabel, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
       ai, risk: risk.level, riskScore: risk.score, status: needsExpert(ai.confidence) ? "Pending" : "Confirmed",
       expertName: needsExpert(ai.confidence) ? undefined : "Auto-validated (≥75%)",
       followUpDue: new Date(Date.now() + 5 * 86400000).toISOString().slice(0, 10), followUps: [], source: "farmer",
@@ -154,9 +183,12 @@ export default function CheckCrop() {
   };
 
   const restart = () => {
+    if (image?.startsWith("blob:")) URL.revokeObjectURL(image);
     setStep("upload");
-    setDetection(null);
-    setDetectionFailed(false);
+    setStoredImage(null);
+    setSource(null);
+    setAnalysis(null);
+    pending.current = null;
     setImage(null);
     setAi(null);
     setCrop(null);
@@ -230,7 +262,7 @@ export default function CheckCrop() {
                     <button
                       key={id}
                       onClick={() => pickSample(id, storedLabel)}
-                      className={cn("w-[134px] shrink-0 overflow-hidden rounded-xl border text-left transition-all", detection?.kind === "demo" && detection.sampleId === id && image ? "border-forest-600 ring-2 ring-forest-200" : "border-ink-100")}
+                      className={cn("w-[134px] shrink-0 overflow-hidden rounded-xl border text-left transition-all", source?.kind === "demo" && source.sampleId === id && image ? "border-forest-600 ring-2 ring-forest-200" : "border-ink-100")}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={ds.src} alt="" className="aspect-[16/10] w-full bg-forest-50 object-cover" />
@@ -266,23 +298,38 @@ export default function CheckCrop() {
                 <Sparkles className="h-3.5 w-3.5 text-amber-500" /> {t.demoModeChip}
               </div>
             )}
-            <ScanAnimation image={image} onDone={onScanDone} title={t.analyzing} />
+            <ScanAnimation image={image} onDone={onScanDone} title={source?.kind === "upload" ? t.analyzingImage : t.analyzing} />
           </motion.div>
         )}
 
-        {step === "identify" && image && (crop || detectionFailed) && (
+        {step === "identify" && image && analysis && analysis.status !== "ok" && (
           <motion.div key="identify" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
             <div className="flex items-start gap-3 rounded-2xl border border-amber-500/40 bg-amber-100/60 p-4">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-amber-600 shadow-soft"><AlertCircle className="h-5 w-5" /></span>
               <div>
-                <div className="font-display font-bold text-ink-900">{detectionFailed ? t.detectionUnavailable : t.cropNotIdentified}</div>
-                {!detectionFailed && crop && <div className="mt-0.5 text-xs font-semibold text-amber-600">{t.confidence}: {crop.confidence}%</div>}
-                <p className="mt-1.5 text-[13px] text-ink-700">{detectionFailed ? t.detectionUnavailableHelp : t.cropNotIdentifiedHelp}</p>
-                {!detectionFailed && crop && crop.alternatives.length > 0 && (
+                <div className="font-display font-bold text-ink-900">
+                  {analysis.status === "error"
+                    ? analysis.code === "not_configured" ? t.visionNotConfigured
+                      : analysis.code === "rate_limited" ? t.tooManyRequests
+                      : t.detectionUnavailable
+                    : analysis.reason === "healthy" ? t.noConditionFound : t.cropNotIdentified}
+                </div>
+                {analysis.status === "low_confidence" && <div className="mt-0.5 text-xs font-semibold text-amber-600">{t.confidence}: {analysis.confidence}%</div>}
+                <p className="mt-1.5 text-[13px] text-ink-700">
+                  {analysis.status === "error"
+                    ? analysis.code === "not_configured" ? t.visionNotConfiguredHelp
+                      : analysis.code === "rate_limited" ? t.tooManyRequestsHelp
+                      : t.detectionUnavailableHelp
+                    : analysis.reason === "healthy" ? t.noConditionFoundHelp : t.cropNotIdentifiedHelp}
+                </p>
+                {analysis.status === "low_confidence" && analysis.topGuess && (
                   <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-white px-2 py-1 text-[11.5px] font-semibold text-ink-700 shadow-soft">
-                    {t.closestMatch}: {CROP_NAMES[lang][crop.alternatives[0].cropId]} · {crop.alternatives[0].confidence}%
+                    {t.closestMatch}: {CROP_NAMES[lang][analysis.topGuess]} · {analysis.confidence}%
                   </div>
                 )}
+                <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-amber-500/15 px-2 py-1 text-[11.5px] font-semibold text-amber-700">
+                  {t.expertReview}
+                </div>
               </div>
             </div>
             <div>
@@ -306,7 +353,7 @@ export default function CheckCrop() {
             </div>
             <div className="flex gap-2">
               <Button variant="ghost" onClick={() => setStep("upload")}>{t.back}</Button>
-              <Button size="lg" className="flex-1" onClick={confirmManualCrop}>{t.next} · {CROP_NAMES[lang][pendingCropId]}</Button>
+              <Button size="lg" className="flex-1" onClick={confirmManualCrop}>{t.sendToExpert} · {CROP_NAMES[lang][pendingCropId]}</Button>
             </div>
           </motion.div>
         )}

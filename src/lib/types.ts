@@ -132,6 +132,8 @@ export interface DiagnosisResult {
   reasoning: string[];
   alternatives: { threatId: string; confidence: number }[];
   modelVersion: string;
+  /** Which path produced this. Absent on legacy seed cases, which are demo data. */
+  inferenceKind?: "demo" | "vision";
   inferenceMs: number;
   /** Optional so existing seed cases in mock/cases.ts stay valid. */
   crop?: CropIdentification;
