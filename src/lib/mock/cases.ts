@@ -1,7 +1,8 @@
+import { MODEL_LABEL } from "../ai-mock";
 import type { Alert, CropCase } from "../types";
 
 const ai = (threatId: string, confidence: number, severity: CropCase["ai"]["severity"], affectedArea: number, symptoms: string[], reasoning: string[], alternatives: { threatId: string; confidence: number }[]): CropCase["ai"] => ({
-  threatId, confidence, severity, affectedArea, symptoms, reasoning, alternatives, modelVersion: "CropNet-v2.3 (EfficientNet-B4 + YOLOv8)", inferenceMs: 1240 + Math.round(confidence * 3),
+  threatId, confidence, severity, affectedArea, symptoms, reasoning, alternatives, modelVersion: MODEL_LABEL, inferenceMs: 1240 + Math.round(confidence * 3),
 });
 
 export const SEED_CASES: CropCase[] = [
