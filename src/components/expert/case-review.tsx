@@ -114,7 +114,7 @@ export function CaseReview({ c, onDone }: { c: CropCase; onDone?: () => void }) 
             </div>
           )}
           <div className="mt-3 text-[11px] text-ink-400">
-            {c.ai.inferenceKind === "vision" ? "Live vision inference" : "Demo inference"} · {c.ai.modelVersion} · inference {c.ai.inferenceMs} ms
+            Demo inference · {c.ai.modelVersion} · inference {c.ai.inferenceMs} ms
           </div>
         </div>
       </div>

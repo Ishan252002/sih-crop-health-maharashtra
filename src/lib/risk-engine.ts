@@ -26,7 +26,8 @@ export interface RiskOutput {
   trend: { day: string; date: string; score: number; level: RiskLevel }[];
 }
 
-const FUNGAL = new Set(["early-blight", "late-blight", "powdery-mildew", "downy-mildew", "leaf-spot"]);
+/** Foliar fungal threats. Shared with the fertilizer engine, which holds nitrogen while one is active. */
+export const FUNGAL = new Set(["early-blight", "late-blight", "powdery-mildew", "downy-mildew", "leaf-spot"]);
 
 export function levelFor(score: number): RiskLevel {
   if (score >= 66) return "HIGH";

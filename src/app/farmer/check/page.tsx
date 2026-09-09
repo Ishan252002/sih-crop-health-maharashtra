@@ -15,7 +15,7 @@ import { DiagnosisResultCard } from "@/components/farmer/diagnosis-result";
 import { AnalysisStages } from "@/components/farmer/analysis-stages";
 import { ModelArchitecture } from "@/components/farmer/model-architecture";
 import { needsExpert, analyzeDemoSample, manualCrop, DEMO_SAMPLES, DEMO_SAMPLE_ORDER, type DemoSampleId } from "@/lib/ai-mock";
-import { analyzeUploadedImage } from "@/lib/vision/client";
+import { analyzeUploadedImage } from "@/lib/vision/prototype";
 import { toStoredImage } from "@/lib/image";
 import type { AnalysisResult } from "@/lib/vision/types";
 import { weatherFor } from "@/lib/mock/weather";
@@ -82,7 +82,7 @@ export default function CheckCrop() {
     return [...ranked, ...CROPS.filter((c) => !seen.has(c.id))];
   }, [analysis]);
 
-  /** Real farmer photo. The file itself is sent to the server for actual image inference. */
+  /** Real farmer photo. Analysed locally by the prototype path; nothing leaves the device. */
   const pick = (file: File) => {
     if (image?.startsWith("blob:")) URL.revokeObjectURL(image);
     const url = URL.createObjectURL(file);
@@ -107,7 +107,7 @@ export default function CheckCrop() {
   const startScan = () => {
     if (!source) return;
     setAnalysis(null);
-    // Real inference starts now so the scan animation covers the network round trip.
+    // Inference starts now so the scan animation covers it. Both paths are local.
     pending.current =
       source.kind === "upload"
         ? analyzeUploadedImage(source.file, { cropStage: stage, location: districtId })
@@ -121,7 +121,7 @@ export default function CheckCrop() {
 
   /** Crop head runs first. Below threshold the farmer picks the crop instead of the app guessing. */
   const onScanDone = useCallback(async () => {
-    const result = (await pending.current) ?? { status: "error" as const, source: "vision" as const, code: "network" as const, reason: "No analysis was started" };
+    const result = (await pending.current) ?? { status: "error" as const, source: "upload" as const, code: "no_analysis" as const, reason: "No analysis was started" };
     setAnalysis(result);
 
     if (result.status === "error") {
@@ -309,17 +309,13 @@ export default function CheckCrop() {
               <div>
                 <div className="font-display font-bold text-ink-900">
                   {analysis.status === "error"
-                    ? analysis.code === "not_configured" ? t.visionNotConfigured
-                      : analysis.code === "rate_limited" ? t.tooManyRequests
-                      : t.detectionUnavailable
+                    ? t.detectionUnavailable
                     : analysis.reason === "healthy" ? t.noConditionFound : t.cropNotIdentified}
                 </div>
                 {analysis.status === "low_confidence" && <div className="mt-0.5 text-xs font-semibold text-amber-600">{t.confidence}: {analysis.confidence}%</div>}
                 <p className="mt-1.5 text-[13px] text-ink-700">
                   {analysis.status === "error"
-                    ? analysis.code === "not_configured" ? t.visionNotConfiguredHelp
-                      : analysis.code === "rate_limited" ? t.tooManyRequestsHelp
-                      : t.detectionUnavailableHelp
+                    ? t.detectionUnavailableHelp
                     : analysis.reason === "healthy" ? t.noConditionFoundHelp : t.cropNotIdentifiedHelp}
                 </p>
                 {analysis.status === "low_confidence" && analysis.topGuess && (
@@ -361,7 +357,7 @@ export default function CheckCrop() {
         {step === "result" && ai && risk && image && crop && cropId && (
           <motion.div key="result" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
             <AnalysisStages ai={ai} crop={crop} stage={stage} onStageChange={setStage} />
-            <DiagnosisResultCard image={image} cropId={cropId} ai={ai} risk={risk.level} riskScore={risk.score} riskExplanation={risk.explanations[lang]} onSave={save} onAdvisory={goAdvisory} saved={!!savedId} />
+            <DiagnosisResultCard image={image} cropId={cropId} ai={ai} risk={risk.level} riskScore={risk.score} riskExplanation={risk.explanations[lang]} onSave={save} onAdvisory={goAdvisory} saved={!!savedId} soil={DEMO_FARMER.soil} stage={stage} />
             <ModelArchitecture />
             {savedId && (
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl bg-forest-900 p-4 text-white">

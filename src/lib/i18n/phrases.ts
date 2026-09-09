@@ -22,6 +22,15 @@ export const PHRASES: Record<string, Pair> = {
   "Affected leaf area mapped to a severity band": ["प्रभावित पत्ती क्षेत्र से गंभीरता स्तर", "बाधित पानाच्या क्षेत्रावरून तीव्रता पातळी"],
   "Generating advisory": ["सलाह तैयार हो रही है", "सल्ला तयार होत आहे"],
   "Composing IPM steps in English, Hindi and Marathi": ["अंग्रेज़ी, हिंदी और मराठी में IPM चरण तैयार", "इंग्रजी, हिंदी आणि मराठीत IPM टप्पे तयार"],
+  // ---- hierarchical architecture stages (model-architecture.tsx)
+  "Image / Farmer Input": ["छवि / किसान इनपुट", "प्रतिमा / शेतकरी इनपुट"],
+  "Crop Identification": ["फसल पहचान", "पीक ओळख"],
+  "Crop Health Assessment": ["फसल स्वास्थ्य आकलन", "पीक आरोग्य मूल्यांकन"],
+  "Disease / Pest Classification": ["रोग / कीट वर्गीकरण", "रोग / कीड वर्गीकरण"],
+  "Severity Estimation": ["गंभीरता अनुमान", "तीव्रता अंदाज"],
+  "Contextual Risk Engine": ["संदर्भ आधारित जोखिम इंजन", "संदर्भाधारित जोखीम इंजिन"],
+  "IPM / Advisory Engine": ["IPM / सलाह इंजन", "IPM / सल्ला इंजिन"],
+  "Expert Validation / Human-in-the-loop": ["विशेषज्ञ सत्यापन / मानव-इन-द-लूप", "तज्ज्ञ पडताळणी / मानवी सहभाग"],
   // ---- weather
   Sunny: ["धूप", "सूर्यप्रकाश"], Cloudy: ["बादल", "ढगाळ"], Overcast: ["घने बादल", "दाट ढगाळ"], Showers: ["हल्की बारिश", "हलका पाऊस"], Rain: ["बारिश", "पाऊस"], Storm: ["तूफ़ान", "वादळ"],
   Mon: ["सोम", "सोम"], Tue: ["मंगल", "मंगळ"], Wed: ["बुध", "बुध"], Thu: ["गुरु", "गुरु"], Fri: ["शुक्र", "शुक्र"], Sat: ["शनि", "शनि"], Sun: ["रवि", "रवि"],

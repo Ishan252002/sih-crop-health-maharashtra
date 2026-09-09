@@ -4,13 +4,15 @@ import { motion } from "framer-motion";
 import type { SoilCard } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useApp } from "@/lib/store/app-store";
+import { SOIL_NUTRIENT_RANGES, ZINC_CRITICAL_PPM, nutrientLevel, phBand, type NutrientKey } from "@/lib/fertilizer";
 
 type Level = "Low" | "Medium" | "High" | "Optimal" | "Neutral" | "Alkaline" | "Acidic";
 
-function nutrient(key: string, value: number, unit: string, ranges: [number, number], label: string): { key: string; label: string; value: number; unit: string; pct: number; level: Level; color: string } {
-  const [lo, hi] = ranges;
+/** Bands come from lib/fertilizer.ts so this card and the fertilizer advisory read the same soil. */
+function nutrient(key: string, rangeKey: NutrientKey, value: number, unit: string, label: string): { key: string; label: string; value: number; unit: string; pct: number; level: Level; color: string } {
+  const hi = SOIL_NUTRIENT_RANGES[rangeKey][1];
   const pct = Math.min(100, Math.max(4, (value / (hi * 1.4)) * 100));
-  const level: Level = value < lo ? "Low" : value > hi ? "High" : "Medium";
+  const level: Level = nutrientLevel(rangeKey, value);
   const color = level === "Low" ? "#e09a1c" : level === "High" ? "#3d8bd6" : "#2f8f6b";
   return { key, label, value, unit, pct, level, color };
 }
@@ -18,13 +20,13 @@ function nutrient(key: string, value: number, unit: string, ranges: [number, num
 export function SoilNutrients({ soil, compact }: { soil: SoilCard; compact?: boolean }) {
   const { t, tx } = useApp();
   const items = [
-    nutrient("N", soil.nitrogen, "kg/ha", [280, 560], t.nitrogen),
-    nutrient("P", soil.phosphorus, "kg/ha", [10, 25], t.phosphorus),
-    nutrient("K", soil.potassium, "kg/ha", [120, 280], t.potassium),
-    nutrient("OC", soil.organicCarbon, "%", [0.5, 0.75], t.organicCarbon),
+    nutrient("N", "nitrogen", soil.nitrogen, "kg/ha", t.nitrogen),
+    nutrient("P", "phosphorus", soil.phosphorus, "kg/ha", t.phosphorus),
+    nutrient("K", "potassium", soil.potassium, "kg/ha", t.potassium),
+    nutrient("OC", "organicCarbon", soil.organicCarbon, "%", t.organicCarbon),
   ];
   const levelLabel: Record<Level, string> = { Low: t.levelLow, Medium: t.levelMedium, High: t.levelHigh, Optimal: t.normal, Neutral: t.phNeutral, Alkaline: t.phAlkaline, Acidic: t.phAcidic };
-  const phLevel: Level = soil.ph < 6.5 ? "Acidic" : soil.ph > 7.8 ? "Alkaline" : "Neutral";
+  const phLevel: Level = phBand(soil.ph);
   return (
     <div className="card-surface p-4">
       <div className="flex items-center justify-between">
@@ -55,7 +57,7 @@ export function SoilNutrients({ soil, compact }: { soil: SoilCard; compact?: boo
       {!compact && (
         <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
           <div className="rounded-xl bg-sand-100 p-3"><div className="text-ink-500">{t.ecSalinity}</div><div className="font-semibold text-ink-900">{soil.ec} dS/m · {t.normal}</div></div>
-          <div className="rounded-xl bg-sand-100 p-3"><div className="text-ink-500">{t.zinc}</div><div className="font-semibold text-ink-900">{soil.zinc} ppm · {t.deficient}</div></div>
+          <div className="rounded-xl bg-sand-100 p-3"><div className="text-ink-500">{t.zinc}</div><div className="font-semibold text-ink-900">{soil.zinc} ppm · {soil.zinc < ZINC_CRITICAL_PPM ? t.deficient : t.normal}</div></div>
         </div>
       )}
     </div>

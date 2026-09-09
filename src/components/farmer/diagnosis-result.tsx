@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { AlertTriangle, ArrowRight, Brain, CheckCircle2, ListChecks, Save, UserCheck } from "lucide-react";
-import type { DiagnosisResult, RiskLevel } from "@/lib/types";
+import type { CropStage, DiagnosisResult, RiskLevel, SoilCard } from "@/lib/types";
 import { threatById } from "@/lib/mock/geo";
 import { useApp } from "@/lib/store/app-store";
 import { SEVERITY_NAMES, THREAT_NAMES, CROP_NAMES } from "@/lib/i18n/ui";
@@ -13,8 +13,13 @@ import { ProgressBar } from "@/components/ui/progress";
 import { needsExpert } from "@/lib/ai-mock";
 import { cn } from "@/lib/utils";
 import { RiskGauge } from "@/components/shared/risk-gauge";
+import { FertilizerRecommendation } from "@/components/farmer/fertilizer-recommendation";
 
-export function DiagnosisResultCard({ image, cropId, ai, risk, riskScore, riskExplanation, onSave, onAdvisory, saved, compact }: { image: string; cropId: string; ai: DiagnosisResult; risk: RiskLevel; riskScore: number; riskExplanation: string; onSave?: () => void; onAdvisory?: () => void; saved?: boolean; compact?: boolean }) {
+/**
+ * `soil` and `stage` are what the fertilizer advisory needs. They are optional so a caller
+ * that has no Soil Health Card to hand still renders the diagnosis, just without that card.
+ */
+export function DiagnosisResultCard({ image, cropId, ai, risk, riskScore, riskExplanation, onSave, onAdvisory, saved, compact, soil, stage }: { image: string; cropId: string; ai: DiagnosisResult; risk: RiskLevel; riskScore: number; riskExplanation: string; onSave?: () => void; onAdvisory?: () => void; saved?: boolean; compact?: boolean; soil?: SoilCard; stage?: CropStage }) {
   const { t, tx, lang } = useApp();
   const threat = threatById(ai.threatId);
   const expert = needsExpert(ai.confidence);
@@ -52,12 +57,7 @@ export function DiagnosisResultCard({ image, cropId, ai, risk, riskScore, riskEx
               <ProgressBar value={ai.affectedArea} color="bg-earth-500" className="mt-1" />
             </div>
             <div className="space-y-0.5">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10.5px] font-semibold text-ink-500">{ai.inferenceKind === "vision" ? t.liveVisionInference : t.demoInference}</span>
-                {ai.inferenceKind === "vision" && (
-                  <span className="rounded-full bg-amber-500/15 px-1.5 py-px text-[9.5px] font-bold uppercase tracking-wide text-amber-700">{t.experimentalBadge}</span>
-                )}
-              </div>
+              <span className="text-[10.5px] font-semibold text-ink-500">{t.demoInference}</span>
               <div className="text-[10.5px] text-ink-400">{ai.modelVersion} · {ai.inferenceMs} ms</div>
             </div>
           </div>
@@ -129,6 +129,8 @@ export function DiagnosisResultCard({ image, cropId, ai, risk, riskScore, riskEx
           <Button variant={saved ? "secondary" : "outline"} onClick={onSave} disabled={saved}><Save className="h-4 w-4" /> {saved ? t.reportSaved : t.saveReport}</Button>
         </div>
       </motion.div>
+
+      {soil && stage && <FertilizerRecommendation soil={soil} cropId={cropId} stage={stage} ai={ai} />}
     </div>
   );
 }

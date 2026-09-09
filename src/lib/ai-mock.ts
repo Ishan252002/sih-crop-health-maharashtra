@@ -21,24 +21,95 @@ export const SCAN_STEPS = [
 export const MODEL_LABEL = "MobileNetV3-Large · proposed";
 
 /**
- * Proposed vision architecture, rendered by components/farmer/model-architecture.tsx.
- * One shared backbone with two classification heads, not a cascade of separate models:
- * a cascade compounds error and a wrong crop ID poisons everything below it with no recovery.
+ * The full hierarchical pipeline, rendered by components/farmer/model-architecture.tsx.
+ *
+ * Stages 2-5 are vision stages over ONE shared MobileNetV3-Large backbone, not a cascade
+ * of separate models: a cascade compounds error and a wrong crop ID poisons everything
+ * below it with no recovery. Stages 6-7 are deterministic rule engines, and stage 8 is a
+ * human. Marking which is which matters, because only the vision stages are a model at
+ * all, and none of them is trained or accuracy-validated yet.
  */
+export type StageKind = "input" | "vision" | "rules" | "human";
+
+export interface ArchitectureStage {
+  key: string;
+  /** Position in the pipeline, shown to the judge as "Stage n". */
+  no: number;
+  kind: StageKind;
+  name: string;
+  input: string;
+  output: string;
+  detail: string;
+  /** Confidence cut-off that changes the route out of this stage, when it has one. */
+  gate?: string;
+}
+
 export const MODEL_ARCHITECTURE = {
   backbone: {
     name: "MobileNetV3-Large",
-    detail: "About 5.4M parameters, built for on-device inference on low-end Android phones",
+    detail: "About 5.4M parameters, built for on-device inference on low-end Android phones. Shared by stages 2-5; proposed, not trained.",
   },
-  heads: [
-    { key: "crop", name: "Crop head", detail: "8 Maharashtra crops. Below 70% the farmer is asked to pick the crop." },
-    { key: "threat", name: "Disease / pest head", detail: "Disease, pest and healthy classes in one head. Below 75% the case goes to an expert." },
-    { key: "severity", name: "Severity estimator", detail: "Affected leaf area, banded into Mild / Moderate / Severe." },
-  ],
-  ruleEngine: [
-    { key: "risk", name: "Risk engine", detail: "Weather, crop stage, soil card and nearby cases. Transparent rules, every factor shown." },
-    { key: "advisory", name: "IPM advisory", detail: "Threat and severity mapped to IPM steps in English, Hindi and Marathi." },
-  ],
+  stages: [
+    {
+      key: "input", no: 1, kind: "input",
+      name: "Image / Farmer Input",
+      input: "Leaf or plant photo, crop stage, district, Soil Health Card",
+      output: "Normalised image and field context",
+      detail: "Colour, exposure and leaf segmentation are normalised so the backbone sees a consistent leaf region.",
+    },
+    {
+      key: "crop", no: 2, kind: "vision",
+      name: "Crop Identification",
+      input: "Segmented leaf region",
+      output: "Crop id and confidence",
+      detail: "Crop head over the shared feature map. 8 Maharashtra crops.",
+      gate: "Below 70% confidence the farmer picks the crop instead of the app claiming one.",
+    },
+    {
+      key: "health", no: 3, kind: "vision",
+      name: "Crop Health Assessment",
+      input: "Crop id and shared feature map",
+      output: "Healthy / Diseased / Pest",
+      detail: "Derived from the disease head, which owns the healthy classes. Not a separate model.",
+    },
+    {
+      key: "threat", no: 4, kind: "vision",
+      name: "Disease / Pest Classification",
+      input: "Crop id, health status, shared feature map",
+      output: "Disease or pest id and confidence",
+      detail: "Disease, pest and healthy classes in one head, scoped to the crop identified at stage 2.",
+      gate: "Below 75% confidence the case is routed to an agronomist for expert review.",
+    },
+    {
+      key: "severity", no: 5, kind: "vision",
+      name: "Severity Estimation",
+      input: "Lesion mask over the segmented leaf",
+      output: "Affected leaf area %, banded Mild / Moderate / Severe",
+      detail: "Last vision stage. Everything below this line is deterministic rules or a human.",
+    },
+    {
+      key: "risk", no: 6, kind: "rules",
+      name: "Contextual Risk Engine",
+      input: "Weather + Soil + Crop stage + Disease/pest history",
+      output: "LOW / MEDIUM / HIGH score and a 7-day trend",
+      detail: "Transparent scoring in lib/risk-engine.ts. Every factor and its contribution is shown to the farmer.",
+    },
+    {
+      key: "advisory", no: 7, kind: "rules",
+      name: "IPM / Advisory Engine",
+      input: "Threat, severity, crop stage, soil card, risk level",
+      output: "IPM ladder and fertilizer advisory in Marathi, Hindi and English",
+      detail: "Lookup and rules in lib/i18n/advisories.ts and lib/fertilizer.ts. Chemical control is always the last rung.",
+    },
+    {
+      key: "expert", no: 8, kind: "human",
+      name: "Expert Validation / Human-in-the-loop",
+      input: "Case, image, model output and the full rule trace",
+      output: "Confirmed / Corrected / Referred / More info requested",
+      detail: "An agronomist has the final word. Corrections are the label source for the training set that does not exist yet.",
+      gate: "Every case under the 75% expert-review threshold lands here before the farmer acts on it.",
+    },
+  ] as ArchitectureStage[],
 } as const;
 
 /**
@@ -218,9 +289,10 @@ export const CROP_ID_THRESHOLD = 70;
 /**
  * Crop head for controlled demo samples only.
  *
- * There is no simulated path for arbitrary uploads any more. A real farmer photo goes to
- * /api/analyze-crop and is analysed by an actual vision model. Guessing a crop from file
- * metadata was removed because it was not recognition and should never have looked like it.
+ * There is no simulated path for arbitrary uploads. A real farmer photo is handled locally
+ * by vision/prototype.ts, which claims no crop at all and routes the case to an agronomist.
+ * Guessing a crop from file metadata was removed because it was not recognition and should
+ * never have looked like it.
  */
 export function identifyCrop(sampleId: DemoSampleId): CropIdentification {
   const sample = DEMO_SAMPLES[sampleId];

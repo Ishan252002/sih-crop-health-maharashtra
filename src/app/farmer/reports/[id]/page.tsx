@@ -70,7 +70,7 @@ export default function ReportDetail({ params }: { params: Promise<{ id: string 
           )}
         </div>
 
-        <DiagnosisResultCard image={c.image} cropId={c.cropId} ai={c.ai} risk={c.risk} riskScore={c.riskScore} riskExplanation={risk.explanations[lang]} saved onAdvisory={() => router.push(`/farmer/advisory?threat=${finalThreat}&crop=${c.cropId}&severity=${c.ai.severity}`)} compact />
+        <DiagnosisResultCard image={c.image} cropId={c.cropId} ai={c.ai} risk={c.risk} riskScore={c.riskScore} riskExplanation={risk.explanations[lang]} saved onAdvisory={() => router.push(`/farmer/advisory?threat=${finalThreat}&crop=${c.cropId}&severity=${c.ai.severity}`)} compact soil={DEMO_FARMER.soil} stage={c.stage} />
 
         <div className="card-surface p-4">
           <div className="flex items-center justify-between">
