@@ -21,7 +21,7 @@ export default function Alerts() {
   const { ackAlerts, ackAlert, cases } = useApp();
   const [tab, setTab] = useState<"open" | "all">("open");
   const [compose, setCompose] = useState<Alert | null>(null);
-  const [lang, setLang] = useState<Lang>("mr");
+  const [lang, setLang] = useState<Lang>("en");
   const [sent, setSent] = useState(false);
   const farmerHigh = cases.filter((c) => c.source === "farmer" && c.risk === "HIGH").map<Alert>((c) => ({ id: `al-${c.id}`, level: "HIGH", title: `New high-risk ${threatById(c.ai.threatId).name} report in ${districtById(c.districtId).name}`, body: `${c.farmerName} (${c.village}) reported ${cropById(c.cropId).name} with ${c.ai.confidence}% confidence. Risk score ${c.riskScore}. ${c.status === "Pending" ? "Awaiting expert validation." : "Auto-validated."}`, districtId: c.districtId, cropId: c.cropId, threatId: c.ai.threatId, createdAt: c.createdAt, acknowledged: false }));
   const all = [...farmerHigh, ...ALERTS].map((a) => ({ ...a, acknowledged: a.acknowledged || ackAlerts.includes(a.id) }));

@@ -36,8 +36,8 @@ const devanagari = localFont({
 });
 
 export const metadata: Metadata = {
-  title: { default: "KrishiRakshak · Maharashtra Crop Health Intelligence", template: "%s · KrishiRakshak" },
-  description: "Early detection and management of crop diseases and pest infestations. AI diagnosis, weather risk forecasting, expert validation and geospatial surveillance for Maharashtra.",
+  title: { default: "KrishiRakshak · Sustainable Crop Health Intelligence", template: "%s · KrishiRakshak" },
+  description: "Early detection of crop diseases and pest infestations so farmers lose less crop and spray fewer chemicals. AI diagnosis, weather risk forecasting, expert validation and geospatial surveillance.",
   icons: { icon: "/favicon.svg" },
 };
 

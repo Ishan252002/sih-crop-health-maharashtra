@@ -9,7 +9,7 @@ export const FLOW_STEPS = [
   { key: "ai", label: "AI Detection", desc: "CNN + YOLO symptom identification", icon: ScanSearch, tone: "from-forest-500 to-forest-800" },
   { key: "weather", label: "Weather + Soil", desc: "Humidity, rain, stage, soil card", icon: CloudSun, tone: "from-sky-500 to-forest-600" },
   { key: "risk", label: "Risk Prediction", desc: "Rule engine → LOW / MEDIUM / HIGH", icon: Gauge, tone: "from-amber-500 to-risk-high" },
-  { key: "advisory", label: "Advisory", desc: "IPM steps in EN · हिंदी · मराठी", icon: Languages, tone: "from-leaf-500 to-forest-700" },
+  { key: "advisory", label: "Advisory", desc: "IPM steps in English and Hindi", icon: Languages, tone: "from-leaf-500 to-forest-700" },
   { key: "expert", label: "Expert Validation", desc: "Confirm, correct, refer, learn", icon: UserCheck, tone: "from-purple-500 to-forest-800" },
   { key: "gis", label: "GIS Hotspot", desc: "Cluster mapping across districts", icon: MapPinned, tone: "from-forest-600 to-sky-500" },
   { key: "gov", label: "Surveillance", desc: "Government planning dashboard", icon: LayoutDashboard, tone: "from-forest-900 to-forest-600" },

@@ -68,7 +68,7 @@ export default function Hotspots() {
 
       <Modal open={!!push} onClose={() => setPush(null)} title="Push advisory to zone">
         {push && (sent ? (
-          <div className="py-4 text-center"><CheckCircle2 className="mx-auto h-12 w-12 text-forest-600" /><div className="mt-3 font-display text-lg font-bold text-ink-900">Advisory queued</div><div className="mt-1 text-sm text-ink-500">~{Math.round(push.cases * 38).toLocaleString("en-IN")} farmers in {districtById(push.districtId).name} will receive the {threatById(push.threatId).name} IPM advisory by SMS, WhatsApp and app in Marathi, Hindi and English.</div><Button className="mt-4 w-full" onClick={() => setPush(null)}>Done</Button></div>
+          <div className="py-4 text-center"><CheckCircle2 className="mx-auto h-12 w-12 text-forest-600" /><div className="mt-3 font-display text-lg font-bold text-ink-900">Advisory queued</div><div className="mt-1 text-sm text-ink-500">~{Math.round(push.cases * 38).toLocaleString("en-IN")} farmers in {districtById(push.districtId).name} will receive the {threatById(push.threatId).name} IPM advisory by SMS, WhatsApp and app in Hindi and English.</div><Button className="mt-4 w-full" onClick={() => setPush(null)}>Done</Button></div>
         ) : (
           <div className="space-y-3 text-sm">
             <div className="rounded-xl bg-sand-100 p-3"><div className="text-xs text-ink-500">Zone</div><div className="font-semibold text-ink-900">{districtById(push.districtId).name} · {push.radiusKm} km radius · {cropById(push.cropId).name}</div></div>

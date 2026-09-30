@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Camera, CloudRain, Droplets, LayoutDashboard, MapPin, ShieldCheck, Sparkles, ThermometerSun, Languages, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Camera, CloudRain, Droplets, LayoutDashboard, Leaf, MapPin, Sparkles, ThermometerSun, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Particles } from "@/components/shared/particles";
 import { ConfidenceRing } from "@/components/shared/confidence-ring";
@@ -24,25 +24,22 @@ export function Hero() {
       <div className="absolute inset-0 grid-fade opacity-70" aria-hidden />
       <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[1.05fr_1fr]">
         <div>
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mb-5 inline-flex items-center gap-2 rounded-full border border-forest-200 bg-white/70 px-3 py-1.5 text-xs font-semibold text-forest-800 shadow-soft backdrop-blur">
-            <ShieldCheck className="h-3.5 w-3.5" /> Smart India Hackathon 2026 · PS 26131 · Government of Maharashtra
-          </motion.div>
           <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.08 }} className="font-display text-[44px] leading-[1.02] sm:text-6xl lg:text-[68px] font-extrabold tracking-[-0.03em] text-ink-900">
             Detect Early.<br />
             <span className="text-gradient-forest">Protect Crops.</span><br />
             Empower Farmers.
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.18 }} className="mt-6 max-w-xl text-lg leading-relaxed text-ink-600">
-            An intelligent crop-health platform combining AI diagnosis, weather intelligence, expert validation and geospatial surveillance.
+            An intelligent crop-health platform that catches disease early, so farmers lose less crop and spray fewer chemicals. AI diagnosis, weather intelligence, expert validation and geospatial surveillance in one pipeline.
           </motion.p>
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.28 }} className="mt-8 flex flex-col sm:flex-row gap-3">
             <Link href="/farmer"><Button size="xl" className="w-full sm:w-auto"><Camera className="h-5 w-5" /> Check Crop Health <ArrowRight className="h-4 w-4" /></Button></Link>
             <Link href="/gov"><Button size="xl" variant="outline" className="w-full sm:w-auto"><LayoutDashboard className="h-5 w-5" /> Government Dashboard</Button></Link>
           </motion.div>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink-500">
-            <span className="inline-flex items-center gap-1.5"><Languages className="h-4 w-4 text-forest-600" /> English · हिंदी · मराठी</span>
+            <span className="inline-flex items-center gap-1.5"><Leaf className="h-4 w-4 text-forest-600" /> Targeted sprays, not blanket sprays</span>
             <span className="inline-flex items-center gap-1.5"><Sparkles className="h-4 w-4 text-forest-600" /> IPM-first advisories</span>
-            <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4 text-forest-600" /> 15 districts live</span>
+            <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4 text-forest-600" /> 15 districts in demo data</span>
           </motion.div>
         </div>
 
@@ -100,8 +97,8 @@ export function Hero() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, delay: 1.15 }} className="absolute right-0 bottom-[22%] w-[40%] rounded-2xl bg-forest-900 p-3 text-white shadow-lift">
-            <div className="text-[10.5px] font-semibold uppercase tracking-wider text-forest-300">Advisory · मराठी</div>
-            <div className="mt-1 text-[12.5px] leading-snug">खालची बाधित पाने काढा. वरून पाणी देणे टाळा. ट्रायकोडर्मा 5 ग्रॅम/लिटर फवारा.</div>
+            <div className="text-[10.5px] font-semibold uppercase tracking-wider text-forest-300">Advisory · IPM-first</div>
+            <div className="mt-1 text-[12.5px] leading-snug">Remove the lower infected leaves. Avoid overhead watering. Spray Trichoderma 5 g/litre.</div>
           </motion.div>
         </div>
       </div>

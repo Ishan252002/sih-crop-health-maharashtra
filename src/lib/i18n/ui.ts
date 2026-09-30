@@ -1,14 +1,13 @@
 import type { Lang } from "../types";
 
 /**
- * Marathi first, then Hindi, then English: Marathi is the default and the primary
- * field language for Maharashtra. `short` is the compact toggle label and is always
- * Latin (MH | HI | EN) so the three chips stay the same visual width on a small phone.
+ * English first, then Hindi: English is the default and the toggle offers exactly
+ * these two languages. `short` is the compact toggle label and is always Latin
+ * (EN | HI) so both chips stay the same visual width on a small phone.
  */
 export const LANGS: { id: Lang; label: string; native: string; short: string }[] = [
-  { id: "mr", label: "Marathi", native: "मराठी", short: "MH" },
-  { id: "hi", label: "Hindi", native: "हिन्दी", short: "HI" },
   { id: "en", label: "English", native: "English", short: "EN" },
+  { id: "hi", label: "Hindi", native: "हिन्दी", short: "HI" },
 ];
 
 const en = {

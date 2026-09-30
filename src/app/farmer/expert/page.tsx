@@ -35,7 +35,7 @@ export default function NearbyExpert() {
                 <div className="mt-1 flex flex-wrap gap-1">{e.specialisation.map((s) => <Badge key={s} tone="neutral" className="text-[10px]">{tx(s)}</Badge>)}</div>
                 <div className="mt-1.5 flex items-center gap-3 text-[11px] text-ink-500">
                   <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {e.distanceKm} {t.away}</span>
-                  <span className="inline-flex items-center gap-1"><Languages className="h-3 w-3" /> {e.languages.map((l) => LANGS.find((x) => x.id === l)?.short).join(" · ")}</span>
+                  <span className="inline-flex items-center gap-1"><Languages className="h-3 w-3" /> {e.languages.map((l) => LANGS.find((x) => x.id === l)?.short).filter(Boolean).join(" · ")}</span>
                   <span className={e.available ? "text-forest-700 font-semibold" : "text-ink-400"}>{e.available ? t.available : t.busy}</span>
                 </div>
               </div>

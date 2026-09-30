@@ -30,7 +30,7 @@ type Action =
   | { type: "skipInsurance" }
   | { type: "reset" };
 
-const initial: State = { lang: "mr", loggedIn: false, farmerName: "Ramesh Patil", cases: SEED_CASES, ackAlerts: [], insurance: null, insuranceSkipped: false, hydrated: false };
+const initial: State = { lang: "en", loggedIn: false, farmerName: "Ramesh Patil", cases: SEED_CASES, ackAlerts: [], insurance: null, insuranceSkipped: false, hydrated: false };
 
 function reducer(s: State, a: Action): State {
   switch (a.type) {
@@ -67,7 +67,7 @@ interface Ctx extends State {
 }
 
 const AppCtx = createContext<Ctx | null>(null);
-const KEY = "mh-crophealth-v1";
+const KEY = "mh-crophealth-v2";
 
 export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initial);
@@ -80,7 +80,8 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
         const seedIds = new Set(SEED_CASES.map((c) => c.id));
         const farmerCases = (parsed.cases ?? []).filter((c) => c.source === "farmer");
         const patchedSeeds = SEED_CASES.map((seed) => (parsed.cases ?? []).find((c) => c.id === seed.id) ?? seed);
-        dispatch({ type: "hydrate", state: { ...parsed, cases: [...farmerCases.filter((c) => !seedIds.has(c.id)), ...patchedSeeds] } });
+        const lang: Lang = parsed.lang === "en" || parsed.lang === "hi" ? parsed.lang : "en";
+        dispatch({ type: "hydrate", state: { ...parsed, lang, cases: [...farmerCases.filter((c) => !seedIds.has(c.id)), ...patchedSeeds] } });
       } else {
         dispatch({ type: "hydrate", state: {} });
       }

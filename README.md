@@ -1,7 +1,6 @@
-# KrishiRakshak · Maharashtra Crop Health Intelligence
+# KrishiRakshak · Sustainable Crop Health Intelligence
 
-Frontend prototype for **Smart India Hackathon 2026 · Problem Statement 26131**
-"Early detection and management of crop diseases and pest infestations" (Government of Maharashtra).
+Frontend prototype for early detection and management of crop diseases and pest infestations, built to cut crop loss and pesticide overuse.
 
 This is a UI-only build: AI inference, the weather API, the risk engine and all case data are simulated in the browser with realistic mock data. No backend is required.
 
@@ -18,7 +17,7 @@ npm run build && npm start
 | Experience | Route | What it shows |
 | --- | --- | --- |
 | Landing | `/` | Hero, problem, "How the intelligence flows", feature showcases, impact, CTA |
-| Farmer app (mobile-first, Marathi by default) | `/farmer/login` → `/farmer` | Login/registration with optional documents (Soil Health Card, Crop Insurance, Skip for now), home with compact insurance status card, Check Crop (photo → AI scan → automatic crop + disease detection → result, with manual crop fallback), Risk Forecast, Advisory (EN/HI/MR), My Reports + follow-up, Nearby Expert, Soil Health Card, Profile → My Documents |
+| Farmer app (mobile-first, English by default) | `/farmer/login` → `/farmer` | Login/registration with optional documents (Soil Health Card, Crop Insurance, Skip for now), home with compact insurance status card, Check Crop (photo → AI scan → automatic crop + disease detection → result, with manual crop fallback), Risk Forecast, Advisory (EN/HI), My Reports + follow-up, Nearby Expert, Soil Health Card, Profile → My Documents |
 | Expert console | `/expert` | Review queue, full case review (image, AI reasoning, weather, soil, history), Confirm / Correct / Request info / Refer, validation history |
 | Government platform | `/gov` | Overview KPIs + live hotspot map + charts, Surveillance matrix and trap network, Live Hotspots, Disease Analytics, Farmers registry, Expert Validation, Alerts + advisory push, Reports |
 
@@ -32,7 +31,7 @@ npm run build && npm start
 6. Same screen combines weather (29 °C, 82 %, 18 mm), crop stage and the soil card.
 7. Risk gauge animates to **HIGH**.
 8. Open **AI model and technical details** to show the proposed MobileNetV3-Large backbone, the two heads and the rule engine, plus the simulated-inference notice.
-9. **View advisory** → 8-part IPM advisory. Switch English / हिन्दी / मराठी in one tap.
+9. **View advisory** → 8-part IPM advisory. Switch English / हिन्दी in one tap.
 10. Back in Check Crop, use the sample "Leaf photo, low light" → Tomato 91 %, Early Blight 61 % → "Expert Review Required" → **Save report**.
 11. Upload any photo that is not a demo sample → crop confidence 38 % → "Crop not identified" → the farmer picks the crop manually and the flow continues.
 12. Open `/expert` → the new case is first in the queue → open it → **Correct Diagnosis** (see the retraining note) or **Confirm**.

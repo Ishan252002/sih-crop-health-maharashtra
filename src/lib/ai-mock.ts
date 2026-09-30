@@ -98,7 +98,7 @@ export const MODEL_ARCHITECTURE = {
       key: "advisory", no: 7, kind: "rules",
       name: "IPM / Advisory Engine",
       input: "Threat, severity, crop stage, soil card, risk level",
-      output: "IPM ladder and fertilizer advisory in Marathi, Hindi and English",
+      output: "IPM ladder and fertilizer advisory in Hindi and English",
       detail: "Lookup and rules in lib/i18n/advisories.ts and lib/fertilizer.ts. Chemical control is always the last rung.",
     },
     {

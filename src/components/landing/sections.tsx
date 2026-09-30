@@ -62,7 +62,7 @@ export function HowItWorks() {
           {[
             { k: "≤ 4 s", v: "photo to diagnosis on a 2G connection" },
             { k: "75%", v: "confidence threshold below which experts review" },
-            { k: "3", v: "languages for every advisory: English, Hindi, Marathi" },
+            { k: "2", v: "languages for every advisory: English and Hindi" },
           ].map((s) => (
             <div key={s.k} className="rounded-2xl border border-white/10 bg-white/5 p-5">
               <div className="font-display text-3xl font-bold text-forest-300">{s.k}</div>
@@ -182,7 +182,7 @@ function MapVisual() {
 }
 
 function AdvisoryVisual() {
-  const [lang, setLang] = useState<Lang>("mr");
+  const [lang, setLang] = useState<Lang>("en");
   const a = advisoryFor("early-blight", lang);
   return (
     <div className="card-surface p-5">
@@ -247,7 +247,7 @@ export function FeatureSections() {
         <FeatureRow flip eyebrow="Weather-based risk engine" title="Risk before symptoms, not after." body="Temperature, humidity, rainfall, crop stage, soil health and nearby cases are combined by a transparent rule engine into a LOW / MEDIUM / HIGH forecast for the next 7 days." bullets={["Explains every score with the factors behind it", "7-day trend so farmers can plan sprays and irrigation", "Soil Health Card values feed susceptibility"]} visual={<RiskVisual />} cta={{ href: "/farmer/risk", label: "See the risk forecast" }} />
         <FeatureRow eyebrow="Expert validation" title="Humans stay in the loop. The model learns from them." body="Any prediction under 75% confidence goes to a plant pathologist. Confirmations and corrections are recorded as labelled field data that improves the next model version." bullets={["Confirm, correct, request more information or refer to a lab", "Full case context: image, weather, soil, history, AI reasoning", "Validation history is auditable for every district"]} visual={<ExpertVisual />} cta={{ href: "/expert", label: "Open the expert console" }} />
         <FeatureRow flip eyebrow="Geospatial hotspot mapping" title="See the outbreak before it becomes a district problem." body="Every confirmed case lands on a Maharashtra map with severity, crop, disease and 7-day trend. Clusters are ranked so officers know where to go first." bullets={["Interactive GIS map with risk zones per district", "Cluster panel: cases, trend, growers in zone, favourable conditions", "One-click advisory push to every farmer in the zone"]} visual={<MapVisual />} cta={{ href: "/gov/hotspots", label: "Explore live hotspots" }} />
-        <FeatureRow eyebrow="Multilingual IPM advisory" title="Advice a farmer can act on today, in their own language." body="Eight-part advisories in English, Hindi and Marathi. Cultural, biological and mechanical control come first. Chemical control appears only with dosage, safety and pre-harvest intervals." bullets={["What happened, why, immediate and preventive actions", "IPM ladder: chemical only when the threshold is crossed", "Dosage, safety warnings and when to call an expert"]} visual={<AdvisoryVisual />} cta={{ href: "/farmer/advisory", label: "Read a full advisory" }} />
+        <FeatureRow eyebrow="Multilingual IPM advisory" title="Advice a farmer can act on today, in their own language." body="Eight-part advisories in English and Hindi. Cultural, biological and mechanical control come first. Chemical control appears only with dosage, safety and pre-harvest intervals." bullets={["What happened, why, immediate and preventive actions", "IPM ladder: chemical only when the threshold is crossed", "Dosage, safety warnings and when to call an expert"]} visual={<AdvisoryVisual />} cta={{ href: "/farmer/advisory", label: "Read a full advisory" }} />
         <FeatureRow flip eyebrow="Government intelligence" title="The state sees the situation in five seconds." body="Aggregated case data, district-wise risk, crop-wise distribution, weekly trends and pending validations, with a map at the centre. Built for surveillance and preventive planning." bullets={["Total cases, outbreaks, high-risk zones, farmers assisted", "Filters by district, crop, disease, date and risk level", "Alerts that name the cluster and the recommended action"]} visual={<GovVisual />} cta={{ href: "/gov", label: "Open the dashboard" }} />
       </div>
     </section>
@@ -258,7 +258,7 @@ export function ImpactSection() {
   return (
     <section id="impact" className="py-20 sm:py-28 bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading align="center" eyebrow="Expected outcomes" title="Earlier detection. Fewer sprays. Faster response." description="Pilot metrics from the Nashik and Jalgaon talukas modelled for the 2026 kharif season." />
+        <SectionHeading align="center" eyebrow="Sustainability impact" title="Earlier detection. Fewer sprays. Faster response." description="Target outcomes modelled on demo data for a Nashik and Jalgaon pilot. These are targets, not field results." />
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {IMPACT.map((m, i) => (
             <motion.div key={m.label} {...fade} transition={{ duration: 0.5, delay: i * 0.08 }} className="card-surface p-6 text-center">
@@ -271,7 +271,7 @@ export function ImpactSection() {
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
           {[
             { icon: Sprout, t: "Reduced crop loss", d: "Alerts up to 7 days before visible damage give farmers a real window to act." },
-            { icon: BadgeIndianRupee, t: "Targeted pesticide use", d: "IPM-first advisories cut unnecessary sprays and residue risk." },
+            { icon: BadgeIndianRupee, t: "Targeted pesticide use", d: "IPM-first advisories cut unnecessary sprays, which protects soil, water and pollinators." },
             { icon: ShieldCheck, t: "Better surveillance coverage", d: "Every scan is a data point. Every district gets a live picture." },
           ].map((x) => {
             const Icon = x.icon;
@@ -303,7 +303,7 @@ export function CTASection() {
           <span className="inline-flex items-center gap-1"><Camera className="h-3.5 w-3.5" /> Image AI</span>
           <span className="inline-flex items-center gap-1"><ScanSearch className="h-3.5 w-3.5" /> YOLO pest detection</span>
           <span className="inline-flex items-center gap-1"><MapPinned className="h-3.5 w-3.5" /> GIS</span>
-          <span className="inline-flex items-center gap-1"><Languages className="h-3.5 w-3.5" /> EN · HI · MR</span>
+          <span className="inline-flex items-center gap-1"><Languages className="h-3.5 w-3.5" /> EN · HI</span>
         </div>
       </div>
     </section>
@@ -316,7 +316,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 grid gap-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Logo dark />
-          <p className="mt-3 max-w-sm text-sm">Early detection and management of crop diseases and pest infestations. Built for Smart India Hackathon 2026, Problem Statement 26131.</p>
+          <p className="mt-3 max-w-sm text-sm">Early detection and management of crop diseases and pest infestations, built to cut crop loss and pesticide overuse.</p>
         </div>
         <div>
           <div className="text-xs font-bold uppercase tracking-wider text-white">Farmer</div>
@@ -327,8 +327,8 @@ export function Footer() {
           <ul className="mt-3 space-y-2 text-sm"><li><Link href="/gov" className="hover:text-white">Overview</Link></li><li><Link href="/gov/hotspots" className="hover:text-white">Live hotspots</Link></li><li><Link href="/gov/analytics" className="hover:text-white">Disease analytics</Link></li><li><Link href="/expert" className="hover:text-white">Expert console</Link></li></ul>
         </div>
         <div>
-          <div className="text-xs font-bold uppercase tracking-wider text-white">Organisation</div>
-          <ul className="mt-3 space-y-2 text-sm"><li>Maharashtra State Innovation Society</li><li>Dept. of Skills, Employment, Entrepreneurship and Innovation</li><li>Theme: Agriculture, FoodTech & Rural Development</li></ul>
+          <div className="text-xs font-bold uppercase tracking-wider text-white">Sustainability</div>
+          <ul className="mt-3 space-y-2 text-sm"><li>Lower crop loss per acre</li><li>Fewer pesticide sprays per season</li><li>Early warning for climate-driven outbreaks</li></ul>
         </div>
       </div>
       <div className="border-t border-white/10 py-4 text-center text-xs">Prototype UI with simulated AI inference and mock data · © 2026 KrishiRakshak</div>

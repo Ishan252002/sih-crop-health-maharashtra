@@ -52,11 +52,11 @@ export const FARMERS: Farmer[] = [
 ];
 
 export const EXPERTS: Expert[] = [
-  { id: "ex-1", name: "Dr. Meera Kulkarni", role: "Plant Pathologist", org: "KVK Nashik (YCMOU)", districtId: "nashik", phone: "+91 253 2XX XXXX", specialisation: ["Tomato", "Grapes", "Fungal diseases"], distanceKm: 6.2, available: true, languages: ["en", "mr", "hi"] },
-  { id: "ex-2", name: "S. R. Deshmukh", role: "Taluka Agriculture Officer", org: "Dept. of Agriculture, Dindori", districtId: "nashik", phone: "+91 98XXX 22314", specialisation: ["IPM", "Input subsidy", "Field visits"], distanceKm: 3.8, available: true, languages: ["mr", "hi"] },
-  { id: "ex-3", name: "Dr. Anil Bhosale", role: "Entomologist", org: "NRC Grapes, Pune", districtId: "pune", phone: "+91 20 2XX XXXX", specialisation: ["Grapes", "Mealybug", "Thrips"], distanceKm: 172, available: false, languages: ["en", "mr"] },
-  { id: "ex-4", name: "Plant Health Clinic", role: "Diagnostic Laboratory", org: "MPKV Rahuri", districtId: "ahmednagar", phone: "+91 2426 2XX XXX", specialisation: ["Lab confirmation", "Pathogen isolation", "Soil testing"], distanceKm: 118, available: true, languages: ["en", "mr", "hi"] },
-  { id: "ex-5", name: "Dr. Rekha Wankhede", role: "Cotton Specialist", org: "CICR Nagpur", districtId: "nagpur", phone: "+91 712 2XX XXXX", specialisation: ["Cotton", "Bollworm", "Whitefly"], distanceKm: 640, available: true, languages: ["en", "hi", "mr"] },
+  { id: "ex-1", name: "Dr. Meera Kulkarni", role: "Plant Pathologist", org: "KVK Nashik (YCMOU)", districtId: "nashik", phone: "+91 253 2XX XXXX", specialisation: ["Tomato", "Grapes", "Fungal diseases"], distanceKm: 6.2, available: true, languages: ["en", "hi"] },
+  { id: "ex-2", name: "S. R. Deshmukh", role: "Taluka Agriculture Officer", org: "Dept. of Agriculture, Dindori", districtId: "nashik", phone: "+91 98XXX 22314", specialisation: ["IPM", "Input subsidy", "Field visits"], distanceKm: 3.8, available: true, languages: ["hi"] },
+  { id: "ex-3", name: "Dr. Anil Bhosale", role: "Entomologist", org: "NRC Grapes, Pune", districtId: "pune", phone: "+91 20 2XX XXXX", specialisation: ["Grapes", "Mealybug", "Thrips"], distanceKm: 172, available: false, languages: ["en"] },
+  { id: "ex-4", name: "Plant Health Clinic", role: "Diagnostic Laboratory", org: "MPKV Rahuri", districtId: "ahmednagar", phone: "+91 2426 2XX XXX", specialisation: ["Lab confirmation", "Pathogen isolation", "Soil testing"], distanceKm: 118, available: true, languages: ["en", "hi"] },
+  { id: "ex-5", name: "Dr. Rekha Wankhede", role: "Cotton Specialist", org: "CICR Nagpur", districtId: "nagpur", phone: "+91 712 2XX XXXX", specialisation: ["Cotton", "Bollworm", "Whitefly"], distanceKm: 640, available: true, languages: ["en", "hi"] },
 ];
 
 export const DEMO_INSURANCE: CropInsurance = {
