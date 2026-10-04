@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { Activity, AlertOctagon, ArrowRight, Bug, ClipboardCheck, Cpu, Leaf, MapPinned, ShieldAlert, Users, Hourglass, Maximize2 } from "lucide-react";
+import { Activity, AlertOctagon, ArrowRight, Bug, ChevronRight, ClipboardCheck, Cpu, Landmark, Leaf, MapPinned, ShieldAlert, Users, Hourglass, Maximize2 } from "lucide-react";
 import { GovShell } from "@/components/gov/gov-shell";
 import { FilterBar, DEFAULT_FILTERS, applyFilters, type GovFilters } from "@/components/gov/filter-bar";
 import { StatCard } from "@/components/ui/stat-card";
@@ -11,10 +11,10 @@ import { HotspotMap, MapLegend } from "@/components/map/hotspot-map";
 import { HotspotPanel } from "@/components/map/hotspot-panel";
 import { CasesOverTime, DistrictBars, Donut, RiskRadial, HorizontalBars, PALETTE } from "@/components/charts/charts";
 import { useApp } from "@/lib/store/app-store";
-import { mergedHotspots, riskCounts, districtRisk, threatDistribution, totalCases } from "@/lib/store/selectors";
+import { mergedHotspots, riskCounts, districtRisk, stateRisk, threatDistribution, totalCases } from "@/lib/store/selectors";
 import { WEEKLY_TREND, DAILY_TREND, CROP_DISTRIBUTION } from "@/lib/mock/analytics";
 import { ALERTS } from "@/lib/mock/cases";
-import { cropById, districtById, threatById } from "@/lib/mock/geo";
+import { cropById, districtById, stateById, threatById } from "@/lib/mock/geo";
 import type { Hotspot } from "@/lib/types";
 import { RiskBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,9 +25,12 @@ export default function GovOverview() {
   const { cases, ackAlerts } = useApp();
   const [filters, setFilters] = useState<GovFilters>(DEFAULT_FILTERS);
   const [selected, setSelected] = useState<Hotspot | null>(null);
+  const [openState, setOpenState] = useState<string | null>(null);
   const spots = useMemo(() => applyFilters(mergedHotspots(cases), filters), [cases, filters]);
   const rc = riskCounts(spots);
   const districts = districtRisk(spots).filter((d) => d.cases > 0);
+  const states = stateRisk(spots).filter((s) => s.cases > 0);
+  const topSpotIn = (districtId: string) => spots.filter((h) => h.districtId === districtId).sort((a, b) => b.cases - a.cases)[0];
   const threats = threatDistribution(spots);
   const total = totalCases(spots);
   const pests = spots.filter((h) => threatById(h.threatId).type === "pest").reduce((a, h) => a + h.cases, 0);
@@ -37,7 +40,7 @@ export default function GovOverview() {
   const trend = filters.range === "7d" ? DAILY_TREND.slice(-7) : DAILY_TREND;
 
   return (
-    <GovShell title="State Overview" subtitle="Crop health surveillance · Maharashtra · updated 09:00 IST" actions={<FilterBar value={filters} onChange={setFilters} />}>
+    <GovShell title="National Overview" subtitle="Crop health surveillance · All India · updated 09:00 IST" actions={<FilterBar value={filters} onChange={setFilters} />}>
       {/* Headline alert */}
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-5 flex flex-col gap-3 rounded-2xl border border-risk-high/25 bg-gradient-to-r from-red-50 to-white p-4 sm:flex-row sm:items-center">
         <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-risk-high text-white"><ShieldAlert className="h-5 w-5" /><span className="absolute inset-0 rounded-xl bg-risk-high animate-pulse-ring" /></span>
@@ -57,7 +60,8 @@ export default function GovOverview() {
         <StatCard label="AI detections" value={402 + cases.filter((c) => c.source === "farmer").length} tone="blue" icon={<Cpu className="h-4.5 w-4.5" />} />
         <StatCard label="Pending validations" value={pending} tone="amber" icon={<Hourglass className="h-4.5 w-4.5" />} />
       </div>
-      <div className="mt-3 grid gap-3 sm:grid-cols-3">
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="States monitored" value={states.length} tone="blue" icon={<Landmark className="h-4.5 w-4.5" />} />
         <StatCard label="Expert-validated cases" value={validated} tone="green" icon={<ClipboardCheck className="h-4.5 w-4.5" />} delta={5} />
         <StatCard label="Diseases detected" value={total - pests} tone="green" icon={<Leaf className="h-4.5 w-4.5" />} />
         <StatCard label="Pest cases" value={pests} tone="amber" icon={<Bug className="h-4.5 w-4.5" />} />
@@ -66,7 +70,7 @@ export default function GovOverview() {
       {/* Map + panel */}
       <div className="mt-5 grid gap-5 xl:grid-cols-[1.7fr_1fr]">
         <div className="card-surface relative overflow-hidden h-[520px]">
-          <HotspotMap hotspots={spots} height={520} selectedId={selected?.id} onSelect={setSelected} />
+          <HotspotMap hotspots={spots} height={520} selectedId={selected?.id} onSelect={setSelected} center={[22.8, 79.5]} zoom={4.4} />
           <div className="absolute left-3 top-3 z-[500] glass rounded-xl px-3 py-2 shadow-soft">
             <div className="text-[11px] font-bold uppercase tracking-wider text-ink-500">Live hotspot map</div>
             <div className="text-sm font-semibold text-ink-900">{spots.length} clusters · {total} cases</div>
@@ -80,19 +84,38 @@ export default function GovOverview() {
               <HotspotPanel key={selected.id} hotspot={selected} onClose={() => setSelected(null)} />
             ) : (
               <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="card-surface">
-                <div className="flex items-center justify-between px-5 pt-4 pb-2"><div className="font-display font-bold text-ink-900">District-wise risk</div><span className="text-xs text-ink-500">click a marker for details</span></div>
+                <div className="flex items-center justify-between px-5 pt-4 pb-2"><div className="font-display font-bold text-ink-900">State-wise risk</div><span className="text-xs text-ink-500">click a state to see districts</span></div>
                 <ul className="max-h-[440px] overflow-y-auto divide-y divide-ink-100">
-                  {districts.map((d) => (
-                    <li key={d.district.id}>
-                      <button onClick={() => setSelected(spots.filter((h) => h.districtId === d.district.id).sort((a, b) => b.cases - a.cases)[0])} className="flex w-full items-center gap-3 px-5 py-2.5 text-left hover:bg-forest-50/60">
-                        <span className={cn("h-2.5 w-2.5 rounded-full", d.risk === "HIGH" ? "bg-risk-high" : d.risk === "MEDIUM" ? "bg-amber-500" : "bg-forest-500")} />
-                        <span className="flex-1 text-sm font-medium text-ink-900 truncate">{d.district.name}</span>
-                        <span className="text-xs text-ink-500">{d.threats} threat{d.threats > 1 ? "s" : ""}</span>
-                        <span className="w-10 text-right font-display text-sm font-bold text-ink-900">{d.cases}</span>
-                        <span className={cn("w-12 text-right text-xs font-semibold", d.trend >= 0 ? "text-risk-high" : "text-forest-700")}>{d.trend >= 0 ? "+" : ""}{d.trend}%</span>
-                      </button>
-                    </li>
-                  ))}
+                  {states.map((st) => {
+                    const open = openState === st.state.id;
+                    const inState = districts.filter((d) => d.district.stateId === st.state.id);
+                    return (
+                      <li key={st.state.id}>
+                        <button onClick={() => setOpenState(open ? null : st.state.id)} aria-expanded={open} className={cn("flex w-full items-center gap-2.5 px-5 py-2.5 text-left hover:bg-forest-50/60", open && "bg-forest-50/70")}>
+                          <ChevronRight className={cn("h-3.5 w-3.5 shrink-0 text-ink-400 transition-transform", open && "rotate-90")} />
+                          <span className={cn("h-2.5 w-2.5 shrink-0 rounded-full", st.risk === "HIGH" ? "bg-risk-high" : st.risk === "MEDIUM" ? "bg-amber-500" : "bg-forest-500")} />
+                          <span className="flex-1 text-sm font-semibold text-ink-900 truncate">{st.state.name}</span>
+                          <span className="text-xs text-ink-500">{st.districts} district{st.districts > 1 ? "s" : ""}</span>
+                          <span className="w-10 text-right font-display text-sm font-bold text-ink-900">{st.cases}</span>
+                          <span className={cn("w-12 text-right text-xs font-semibold", st.trend >= 0 ? "text-risk-high" : "text-forest-700")}>{st.trend >= 0 ? "+" : ""}{st.trend}%</span>
+                        </button>
+                        {open && (
+                          <ul className="bg-sand-50/70 border-t border-ink-100">
+                            {inState.map((d) => (
+                              <li key={d.district.id}>
+                                <button onClick={() => setSelected(topSpotIn(d.district.id))} className="flex w-full items-center gap-2.5 py-2 pl-12 pr-5 text-left hover:bg-forest-50">
+                                  <span className={cn("h-2 w-2 shrink-0 rounded-full", d.risk === "HIGH" ? "bg-risk-high" : d.risk === "MEDIUM" ? "bg-amber-500" : "bg-forest-500")} />
+                                  <span className="min-w-0 flex-1"><span className="block truncate text-[13px] font-medium text-ink-800">{d.district.name}</span><span className="block truncate text-[11px] text-ink-500">{d.district.region} · {d.threats} threat{d.threats > 1 ? "s" : ""}</span></span>
+                                  <span className="w-10 text-right font-display text-[13px] font-bold text-ink-900">{d.cases}</span>
+                                  <span className={cn("w-12 text-right text-[11px] font-semibold", d.trend >= 0 ? "text-risk-high" : "text-forest-700")}>{d.trend >= 0 ? "+" : ""}{d.trend}%</span>
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </motion.div>
             )}
@@ -122,8 +145,8 @@ export default function GovOverview() {
       </div>
       <div className="mt-5 grid gap-5 lg:grid-cols-3">
         <div className="card-surface p-5 lg:col-span-2">
-          <div className="font-display font-bold text-ink-900">District-wise cases</div>
-          <div className="mt-3"><DistrictBars data={districts.map((d) => ({ name: d.district.name, cases: d.cases, risk: d.risk }))} /></div>
+          <div className="flex items-center justify-between"><div className="font-display font-bold text-ink-900">District-wise cases</div><span className="text-xs text-ink-500">top 12 of {districts.length} reporting</span></div>
+          <div className="mt-3"><DistrictBars data={districts.slice(0, 12).map((d) => ({ name: d.district.name, cases: d.cases, risk: d.risk }))} /></div>
         </div>
         <div className="card-surface p-5">
           <div className="font-display font-bold text-ink-900">Crop-wise cases</div>
@@ -143,7 +166,7 @@ export default function GovOverview() {
         </div>
         <div className="mt-5"><IntelligenceFlow dark compact /></div>
       </div>
-      <div className="mt-3 text-[11px] text-ink-400">Selected district: {filters.district === "all" ? "all" : districtById(filters.district).name} · <RiskBadge level="HIGH" className="align-middle px-1.5 py-0" /> zones are auto-escalated to the Joint Director.</div>
+      <div className="mt-3 text-[11px] text-ink-400">Scope: {filters.state === "all" ? "all states" : stateById(filters.state).name} · {filters.district === "all" ? "all districts" : districtById(filters.district).name} · <RiskBadge level="HIGH" className="align-middle px-1.5 py-0" /> zones are auto-escalated to the Joint Director.</div>
     </GovShell>
   );
 }

@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, Camera, Check, ImagePlus, MapPin, RefreshCcw, Sparkles, Upload } from "lucide-react";
 import { FarmerShell } from "@/components/farmer/farmer-shell";
 import { useApp } from "@/lib/store/app-store";
-import { CROPS, DISTRICTS, cropById } from "@/lib/mock/geo";
+import { CROPS, DISTRICTS, caseIdPrefix, cropById } from "@/lib/mock/geo";
 import { CROP_NAMES, STAGE_NAMES, DISTRICT_NAMES } from "@/lib/i18n/ui";
 import { DEMO_FARMER } from "@/lib/mock/farmers";
 import { Button } from "@/components/ui/button";
@@ -163,8 +163,7 @@ export default function CheckCrop() {
 
   const save = () => {
     if (!ai || !risk || !cropId) return;
-    const d = DISTRICTS.find((x) => x.id === districtId)!;
-    const id = `MH-${d.code}-2026-${pad(500 + cases.filter((c) => c.source === "farmer").length + 1)}`;
+    const id = `${caseIdPrefix(districtId)}-2026-${pad(500 + cases.filter((c) => c.source === "farmer").length + 1)}`;
     const c: CropCase = {
       id, farmerId: DEMO_FARMER.id, farmerName, village: DEMO_FARMER.village, districtId, cropId, stage,
       image: storedImage ?? image!, imageLabel, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),

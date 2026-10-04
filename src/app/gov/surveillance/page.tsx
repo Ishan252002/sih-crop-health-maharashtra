@@ -8,7 +8,7 @@ import { GovShell } from "@/components/gov/gov-shell";
 import { FilterBar, DEFAULT_FILTERS, applyFilters, type GovFilters } from "@/components/gov/filter-bar";
 import { useApp } from "@/lib/store/app-store";
 import { mergedHotspots, districtRisk } from "@/lib/store/selectors";
-import { cropById, districtById, threatById, DISTRICTS } from "@/lib/mock/geo";
+import { cropById, districtById, stateById, threatById, DISTRICTS, STATES } from "@/lib/mock/geo";
 import { weatherFor } from "@/lib/mock/weather";
 import { computeRisk } from "@/lib/risk-engine";
 import { RiskBadge, StatusBadge, Badge } from "@/components/ui/badge";
@@ -24,6 +24,14 @@ const TRAPS = [
   { id: "S-NSK-02", district: "nashik", village: "Niphad", type: "Leaf-wetness sensor", count: 11, threshold: 8, status: "alert", updated: "2026-09-05T07:00:00+05:30", unit: "h" },
   { id: "S-SAN-05", district: "sangli", village: "Tasgaon", type: "Leaf-wetness sensor", count: 6, threshold: 8, status: "ok", updated: "2026-09-05T07:00:00+05:30", unit: "h" },
   { id: "T-AMR-02", district: "amravati", village: "Achalpur", type: "Yellow sticky (whitefly)", count: 14, threshold: 20, status: "ok", updated: "2026-09-04T17:20:00+05:30" },
+  { id: "T-CWA-09", district: "chhindwara", village: "Saunsar", type: "Pheromone (FAW)", count: 17, threshold: 10, status: "alert", updated: "2026-09-05T06:20:00+05:30" },
+  { id: "S-LDH-04", district: "ludhiana", village: "Dakha", type: "Dew-duration sensor", count: 11, threshold: 9, status: "alert", updated: "2026-09-05T07:10:00+05:30", unit: "h" },
+  { id: "S-KNL-01", district: "karnal", village: "Nilokheri", type: "Dew-duration sensor", count: 10, threshold: 9, status: "alert", updated: "2026-09-05T07:10:00+05:30", unit: "h" },
+  { id: "T-GNT-06", district: "guntur", village: "Tenali", type: "Yellow sticky (whitefly)", count: 41, threshold: 20, status: "alert", updated: "2026-09-05T08:40:00+05:30" },
+  { id: "T-WGL-05", district: "warangal", village: "Parkal", type: "Pheromone (PBW)", count: 11, threshold: 8, status: "alert", updated: "2026-09-04T17:55:00+05:30" },
+  { id: "L-TNJ-02", district: "thanjavur", village: "Kumbakonam", type: "Light trap (BPH)", count: 28, threshold: 10, status: "alert", updated: "2026-09-05T05:40:00+05:30", unit: "/hill" },
+  { id: "L-JRT-01", district: "jorhat", village: "Titabar", type: "Light trap (BPH)", count: 9, threshold: 10, status: "ok", updated: "2026-09-04T19:15:00+05:30", unit: "/hill" },
+  { id: "T-RJT-03", district: "rajkot", village: "Gondal", type: "Leaf-wetness sensor", count: 7, threshold: 8, status: "ok", updated: "2026-09-05T07:00:00+05:30", unit: "h" },
 ];
 
 export default function Surveillance() {
@@ -31,18 +39,19 @@ export default function Surveillance() {
   const [filters, setFilters] = useState<GovFilters>(DEFAULT_FILTERS);
   const spots = useMemo(() => applyFilters(mergedHotspots(cases), filters), [cases, filters]);
   const districts = districtRisk(spots).filter((d) => d.cases > 0);
+  const states = new Set(districts.map((d) => d.district.stateId));
   const recent = cases.slice().sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)).filter((c) => filters.district === "all" || c.districtId === filters.district).slice(0, 8);
   const traps = TRAPS.filter((t) => filters.district === "all" || t.district === filters.district);
 
   return (
-    <GovShell title="Surveillance" subtitle="District risk matrix, trap and sensor network, live case feed" actions={<FilterBar value={filters} onChange={setFilters} />}>
+    <GovShell title="Surveillance" subtitle="Nationwide district risk matrix, trap and sensor network, live case feed" actions={<FilterBar value={filters} onChange={setFilters} />}>
       <div className="grid gap-5 xl:grid-cols-[1.5fr_1fr]">
         <div className="min-w-0 space-y-5">
           <div className="card-surface overflow-hidden">
             <div className="flex items-center justify-between px-5 py-3 border-b border-ink-100"><div className="font-display font-bold text-ink-900 inline-flex items-center gap-2"><Radar className="h-4 w-4 text-forest-700" /> District risk matrix</div><span className="text-xs text-ink-500">weather-driven forecast for the dominant threat</span></div>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px] text-sm">
-                <thead className="bg-sand-100 text-[11px] uppercase tracking-wider text-ink-500"><tr><th className="px-4 py-2 text-left font-bold">District</th><th className="px-3 py-2 text-left font-bold">Dominant threat</th><th className="px-3 py-2 text-right font-bold">Cases</th><th className="px-3 py-2 text-right font-bold">7d</th><th className="px-3 py-2 text-left font-bold">Weather</th><th className="px-3 py-2 text-left font-bold">Forecast risk</th><th className="px-3 py-2 text-left font-bold">Level</th></tr></thead>
+              <table className="w-full min-w-[860px] text-sm">
+                <thead className="bg-sand-100 text-[11px] uppercase tracking-wider text-ink-500"><tr><th className="px-4 py-2 text-left font-bold">District</th><th className="px-3 py-2 text-left font-bold">State</th><th className="px-3 py-2 text-left font-bold">Dominant threat</th><th className="px-3 py-2 text-right font-bold">Cases</th><th className="px-3 py-2 text-right font-bold">7d</th><th className="px-3 py-2 text-left font-bold">Weather</th><th className="px-3 py-2 text-left font-bold">Forecast risk</th><th className="px-3 py-2 text-left font-bold">Level</th></tr></thead>
                 <tbody className="divide-y divide-ink-100">
                   {districts.map((d, i) => {
                     const top = spots.filter((h) => h.districtId === d.district.id).sort((a, b) => b.cases - a.cases)[0];
@@ -52,6 +61,7 @@ export default function Surveillance() {
                     return (
                       <motion.tr key={d.district.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }} className="hover:bg-forest-50/50">
                         <td className="px-4 py-2.5 font-semibold text-ink-900">{d.district.name}<div className="text-[11px] font-normal text-ink-500">{d.district.region}</div></td>
+                        <td className="px-3 py-2.5 text-ink-800">{stateById(d.district.stateId).name}<div className="text-[11px] text-ink-500">{stateById(d.district.stateId).zone}</div></td>
                         <td className="px-3 py-2.5"><div className="inline-flex items-center gap-1.5 text-ink-800">{th.type === "pest" ? <Bug className="h-3.5 w-3.5 text-amber-600" /> : <Leaf className="h-3.5 w-3.5 text-forest-600" />}{th.name}</div><div className="text-[11px] text-ink-500">{cropById(top.cropId).emoji} {cropById(top.cropId).name}</div></td>
                         <td className="px-3 py-2.5 text-right font-display font-bold text-ink-900">{d.cases}</td>
                         <td className={cn("px-3 py-2.5 text-right font-semibold", d.trend >= 0 ? "text-risk-high" : "text-forest-700")}><span className="inline-flex items-center">{d.trend >= 0 ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}{Math.abs(d.trend)}%</span></td>
@@ -91,7 +101,7 @@ export default function Surveillance() {
           <div className="card-surface p-5">
             <div className="font-display font-bold text-ink-900">Coverage</div>
             <div className="mt-3 space-y-3">
-              {[{ l: "Districts reporting", v: 15, of: 36 }, { l: "Talukas with active scans", v: 118, of: 358 }, { l: "Villages with registered farmers", v: 2412, of: 43665 }].map((x) => (
+              {[{ l: "States and UTs reporting", v: states.size, of: 36 }, { l: "Districts reporting", v: districts.length, of: 766 }, { l: "Blocks with active scans", v: 1184, of: 7255 }, { l: "Villages with registered farmers", v: 18420, of: 597608 }].map((x) => (
                 <div key={x.l}><div className="flex justify-between text-xs"><span className="text-ink-600">{x.l}</span><span className="font-semibold text-ink-900">{x.v.toLocaleString("en-IN")} / {x.of.toLocaleString("en-IN")}</span></div><ProgressBar value={(x.v / x.of) * 100} className="mt-1" /></div>
               ))}
             </div>
@@ -99,7 +109,7 @@ export default function Surveillance() {
           </div>
         </div>
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-1 text-[11px] text-ink-400">Showing {districts.length} of {DISTRICTS.length} districts. Statuses: {["Pending", "Under Review", "Confirmed", "Corrected", "Referred"].map((s) => <StatusBadge key={s} status={s as never} />).map((b, i) => <span key={i} className="ml-1 align-middle inline-block">{b}</span>)}</div>
+      <div className="mt-3 flex flex-wrap items-center gap-1 text-[11px] text-ink-400">Showing {districts.length} of {DISTRICTS.length} districts across {states.size} of {STATES.length} states. Statuses: {["Pending", "Under Review", "Confirmed", "Corrected", "Referred"].map((s) => <StatusBadge key={s} status={s as never} />).map((b, i) => <span key={i} className="ml-1 align-middle inline-block">{b}</span>)}</div>
     </GovShell>
   );
 }

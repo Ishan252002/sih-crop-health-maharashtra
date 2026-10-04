@@ -10,6 +10,7 @@ import { RiskGauge } from "@/components/shared/risk-gauge";
 import { Badge } from "@/components/ui/badge";
 import { useRef } from "react";
 import { SAMPLE_IMAGES } from "@/lib/ai-mock";
+import { HOTSPOTS } from "@/lib/mock/hotspots";
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -93,7 +94,7 @@ export function Hero() {
               <span className="absolute left-[50%] top-[75%] -translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-forest-500 ring-4 ring-white shadow" />
               <div className="absolute bottom-2 left-3 rounded-lg bg-white/90 px-2 py-1 text-[10.5px] font-semibold text-ink-800 shadow-soft">Nashik · 48 cases · <span className="text-risk-high">+23%</span></div>
             </div>
-            <div className="flex items-center justify-between px-3 py-2 text-[11px]"><span className="font-semibold text-ink-800">Live hotspot map</span><span className="text-ink-500">Maharashtra · 16 clusters</span></div>
+            <div className="flex items-center justify-between px-3 py-2 text-[11px]"><span className="font-semibold text-ink-800">Live hotspot map</span><span className="text-ink-500">All India · {HOTSPOTS.length} clusters</span></div>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, delay: 1.15 }} className="absolute right-0 bottom-[22%] w-[40%] rounded-2xl bg-forest-900 p-3 text-white shadow-lift">

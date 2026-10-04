@@ -62,7 +62,7 @@ export const MODEL_ARCHITECTURE = {
       name: "Crop Identification",
       input: "Segmented leaf region",
       output: "Crop id and confidence",
-      detail: "Crop head over the shared feature map. 8 Maharashtra crops.",
+      detail: "Crop head over the shared feature map. 15 crops.",
       gate: "Below 70% confidence the farmer picks the crop instead of the app claiming one.",
     },
     {

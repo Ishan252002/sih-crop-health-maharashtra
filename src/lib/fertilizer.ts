@@ -6,7 +6,7 @@ import type { CropStage, HealthStatus, Severity, SoilCard } from "./types";
  *
  * Deterministic rules over the Soil Health Card, the crop stage and whatever the vision
  * stages reported (crop, health, disease/pest, severity). Nothing here is a validated
- * prescription: the doses are indicative ranges from published Maharashtra package-of-
+ * prescription: the doses are indicative ranges from published ICAR and state package-of-
  * practice guidance and must be confirmed against the farmer's own soil test and a local
  * agronomist before use. The UI labels every plan as a prototype advisory for that reason.
  *

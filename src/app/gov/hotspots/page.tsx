@@ -29,10 +29,10 @@ export default function Hotspots() {
   const ranked = spots.slice().sort((a, b) => (b.risk === "HIGH" ? 2 : b.risk === "MEDIUM" ? 1 : 0) - (a.risk === "HIGH" ? 2 : a.risk === "MEDIUM" ? 1 : 0) || b.cases - a.cases);
 
   return (
-    <GovShell title="Live Hotspots" subtitle="Geospatial clustering of disease and pest cases across Maharashtra" actions={<><FilterBar value={filters} onChange={setFilters} /><SegmentedTabs size="sm" value={layer} onChange={setLayer} options={[{ id: "all", label: "All", icon: <Layers className="h-3.5 w-3.5" /> }, { id: "disease", label: "Disease", icon: <Leaf className="h-3.5 w-3.5" /> }, { id: "pest", label: "Pest", icon: <Bug className="h-3.5 w-3.5" /> }]} /></>}>
+    <GovShell title="Live Hotspots" subtitle="Geospatial clustering of disease and pest cases across India" actions={<><FilterBar value={filters} onChange={setFilters} /><SegmentedTabs size="sm" value={layer} onChange={setLayer} options={[{ id: "all", label: "All", icon: <Layers className="h-3.5 w-3.5" /> }, { id: "disease", label: "Disease", icon: <Leaf className="h-3.5 w-3.5" /> }, { id: "pest", label: "Pest", icon: <Bug className="h-3.5 w-3.5" /> }]} /></>}>
       <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
         <div className="card-surface relative overflow-hidden h-[calc(100dvh-260px)] min-h-[560px]">
-          <HotspotMap hotspots={spots} height="100%" selectedId={selected?.id} onSelect={setSelected} zoom={6.5} center={[19.3, 76.6]} wheelZoom />
+          <HotspotMap hotspots={spots} height="100%" selectedId={selected?.id} onSelect={setSelected} zoom={4.4} center={[22.8, 79.5]} wheelZoom />
           <MapLegend className="absolute left-3 bottom-3 z-[500]" />
           <div className="absolute left-3 top-3 z-[500] flex gap-2">
             {(["HIGH", "MEDIUM", "LOW"] as const).map((l) => (

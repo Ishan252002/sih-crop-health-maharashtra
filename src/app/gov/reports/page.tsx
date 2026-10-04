@@ -67,7 +67,7 @@ export default function Reports() {
 
       <Modal open={preview} onClose={() => setPreview(false)} title="Weekly Crop Health Bulletin · Week 36" size="xl">
         <div className="space-y-5 text-sm">
-          <div className="flex items-center justify-between"><div className="text-xs text-ink-500">Government of Maharashtra · Department of Agriculture · Plant Protection Cell · 05 Sep 2026</div><Button size="sm" variant="outline"><Printer className="h-3.5 w-3.5" /> Print</Button></div>
+          <div className="flex items-center justify-between"><div className="text-xs text-ink-500">Government of India · Department of Agriculture &amp; Farmers Welfare · Plant Protection Cell · 05 Sep 2026</div><Button size="sm" variant="outline"><Printer className="h-3.5 w-3.5" /> Print</Button></div>
           <div className="rounded-2xl border border-risk-high/25 bg-red-50 p-4"><div className="text-xs font-bold uppercase tracking-wider text-risk-high">Headline</div><div className="mt-1 font-display text-lg font-bold text-ink-900">High-risk cluster detected in Nashik. Pink bollworm above ETL in Jalgaon and Yavatmal.</div></div>
           <div className="grid gap-4 md:grid-cols-2">
             <div><div className="font-semibold text-ink-900 mb-2">District summary</div><table className="w-full text-xs"><tbody className="divide-y divide-ink-100">{districts.slice(0, 8).map((d) => <tr key={d.district.id}><td className="py-1.5 font-medium text-ink-800">{d.district.name}</td><td className="py-1.5 text-right">{d.cases}</td><td className="py-1.5 text-right">{d.trend >= 0 ? "+" : ""}{d.trend}%</td><td className="py-1.5 text-right"><RiskBadge level={d.risk} className="px-1.5 py-0 text-[9px]" /></td></tr>)}</tbody></table></div>

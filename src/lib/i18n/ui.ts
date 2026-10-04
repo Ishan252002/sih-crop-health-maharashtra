@@ -57,7 +57,7 @@ const en = {
   pathLiveTitle: "Your own photo",
   pathLiveBody: "No trained classifier exists yet, so the prototype does not claim a crop or a disease from an arbitrary photo. You confirm the crop and the case goes to an agronomist. No image is uploaded to any external service.",
   pathRoadmapTitle: "Production roadmap",
-  pathRoadmapBody: "Train the MobileNetV3-Large heads on Maharashtra-relevant crop and disease data, then ship the model on-device so this path runs for free on a real photo.",
+  pathRoadmapBody: "Train the MobileNetV3-Large heads on national crop and disease data covering every reporting state, then ship the model on-device so this path runs for free on a real photo.",
   demoModeChip: "Demo mode: simulated inference",
   closestMatch: "Closest match",
   detectionUnavailable: "Detection unavailable",
@@ -157,9 +157,9 @@ const en = {
   statusPending: "Pending",
   statusExpired: "Expired",
   documents: "Documents",
-  skippedNote: "Skipped for now.",  maharashtra: "Maharashtra",
+  skippedNote: "Skipped for now.",  country: "India",
   within14km: "within 14 km of",
-  stateName: "Maharashtra",
+  stateName: "India",
   aiConfidenceExpert: "AI Confidence: {n}% → Expert Review Required",
   highConfidenceNote: "High confidence. Advisory is ready. Case is auto-logged for district surveillance.",
   alternatives: "Alternatives",
@@ -232,7 +232,7 @@ const en = {
   packLeaves: "Pack 5 affected leaves in a paper bag, not plastic. Sample pickup available via Krishi Sevak.",
   confirmRequest: "Confirm request",
   login: "Login",
-  govUniqueId: "Government of Maharashtra · Unique Farmer ID",
+  govUniqueId: "Government of India · Unique Farmer ID",
   cropDiagnosis: "Crop diagnosis",
   localAlerts: "Local alerts",
   expertVerified: "Expert verified",
@@ -332,7 +332,7 @@ const hi: UIStrings = {
   pathLiveTitle: "आपकी अपनी फोटो",
   pathLiveBody: "अभी कोई प्रशिक्षित क्लासिफायर नहीं है, इसलिए प्रोटोटाइप किसी भी फोटो से फसल या रोग का दावा नहीं करता। आप फसल की पुष्टि करते हैं और मामला कृषि विशेषज्ञ के पास जाता है। कोई छवि किसी बाहरी सेवा को नहीं भेजी जाती।",
   pathRoadmapTitle: "उत्पादन रोडमैप",
-  pathRoadmapBody: "MobileNetV3-Large हेड को महाराष्ट्र-संबंधित फसल और रोग डेटा पर प्रशिक्षित करें, फिर मॉडल को डिवाइस पर भेजें ताकि यह रास्ता असली फोटो पर मुफ़्त चले।",
+  pathRoadmapBody: "MobileNetV3-Large हेड को सभी रिपोर्टिंग राज्यों की राष्ट्रीय फसल और रोग डेटा पर प्रशिक्षित करें, फिर मॉडल को डिवाइस पर भेजें ताकि यह रास्ता असली फोटो पर मुफ़्त चले।",
   demoModeChip: "डेमो मोड: सिमुलेटेड अनुमान",
   closestMatch: "सबसे नज़दीकी मिलान",
   detectionUnavailable: "पहचान उपलब्ध नहीं",
@@ -432,9 +432,9 @@ const hi: UIStrings = {
   statusPending: "लंबित",
   statusExpired: "समाप्त",
   documents: "दस्तावेज़",
-  skippedNote: "अभी के लिए छोड़ा गया।",  maharashtra: "महाराष्ट्र",
+  skippedNote: "अभी के लिए छोड़ा गया।",  country: "भारत",
   within14km: "से 14 किमी के भीतर",
-  stateName: "महाराष्ट्र",
+  stateName: "भारत",
   aiConfidenceExpert: "AI विश्वास {n}% → विशेषज्ञ समीक्षा आवश्यक",
   highConfidenceNote: "उच्च विश्वास। सलाह तैयार है। मामला ज़िला निगरानी में स्वतः दर्ज हो गया है।",
   alternatives: "अन्य संभावनाएँ",
@@ -507,7 +507,7 @@ const hi: UIStrings = {
   packLeaves: "5 प्रभावित पत्तियाँ कागज़ के थैले में रखें, प्लास्टिक में नहीं। कृषि सेवक के माध्यम से नमूना संग्रह उपलब्ध।",
   confirmRequest: "अनुरोध की पुष्टि करें",
   login: "लॉगिन",
-  govUniqueId: "महाराष्ट्र शासन · विशिष्ट किसान ID",
+  govUniqueId: "भारत सरकार · विशिष्ट किसान ID",
   cropDiagnosis: "फसल निदान",
   localAlerts: "स्थानीय अलर्ट",
   expertVerified: "विशेषज्ञ द्वारा सत्यापित",
@@ -605,7 +605,7 @@ const mr: UIStrings = {
   pathLiveTitle: "तुमचा स्वतःचा फोटो",
   pathLiveBody: "अद्याप प्रशिक्षित क्लासिफायर नाही, त्यामुळे प्रोटोटाइप कोणत्याही फोटोवरून पीक किंवा रोगाचा दावा करत नाही. तुम्ही पीक निश्चित करता आणि प्रकरण कृषी तज्ज्ञांकडे जाते. कोणतीही प्रतिमा बाह्य सेवेकडे पाठवली जात नाही.",
   pathRoadmapTitle: "उत्पादन रोडमॅप",
-  pathRoadmapBody: "MobileNetV3-Large हेड महाराष्ट्र-संबंधित पीक आणि रोग डेटावर प्रशिक्षित करा, नंतर मॉडेल फोनवरच पाठवा म्हणजे हा मार्ग खऱ्या फोटोवर मोफत चालेल.",
+  pathRoadmapBody: "MobileNetV3-Large हेड सर्व अहवाल देणाऱ्या राज्यांच्या राष्ट्रीय पीक आणि रोग डेटावर प्रशिक्षित करा, नंतर मॉडेल फोनवरच पाठवा म्हणजे हा मार्ग खऱ्या फोटोवर मोफत चालेल.",
   demoModeChip: "डेमो मोड: सिम्युलेटेड अनुमान",
   closestMatch: "सर्वात जवळचे जुळणारे",
   detectionUnavailable: "ओळख उपलब्ध नाही",
@@ -705,9 +705,9 @@ const mr: UIStrings = {
   statusPending: "प्रलंबित",
   statusExpired: "कालबाह्य",
   documents: "कागदपत्रे",
-  skippedNote: "सध्या वगळले.",  maharashtra: "महाराष्ट्र",
+  skippedNote: "सध्या वगळले.",  country: "भारत",
   within14km: "पासून 14 किमी आत",
-  stateName: "महाराष्ट्र",
+  stateName: "भारत",
   aiConfidenceExpert: "AI विश्वास {n}% → तज्ज्ञ पुनरावलोकन आवश्यक",
   highConfidenceNote: "उच्च विश्वास. सल्ला तयार आहे. प्रकरण जिल्हा निरीक्षणात आपोआप नोंदवले आहे.",
   alternatives: "इतर शक्यता",
@@ -780,7 +780,7 @@ const mr: UIStrings = {
   packLeaves: "5 बाधित पाने कागदी पिशवीत ठेवा, प्लास्टिकमध्ये नाही. कृषी सेवकामार्फत नमुना संकलन उपलब्ध.",
   confirmRequest: "विनंती निश्चित करा",
   login: "लॉगिन",
-  govUniqueId: "महाराष्ट्र शासन · एकमेव शेतकरी ID",
+  govUniqueId: "भारत सरकार · एकमेव शेतकरी ID",
   cropDiagnosis: "पीक निदान",
   localAlerts: "स्थानिक सूचना",
   expertVerified: "तज्ज्ञांनी पडताळले",
@@ -834,15 +834,15 @@ const mr: UIStrings = {
 export const UI: Record<Lang, UIStrings> = { en, hi, mr };
 
 export const CROP_NAMES: Record<Lang, Record<string, string>> = {
-  en: { tomato: "Tomato", cotton: "Cotton", soybean: "Soybean", grapes: "Grapes", onion: "Onion", sugarcane: "Sugarcane", rice: "Rice", wheat: "Wheat" },
-  hi: { tomato: "टमाटर", cotton: "कपास", soybean: "सोयाबीन", grapes: "अंगूर", onion: "प्याज़", sugarcane: "गन्ना", rice: "धान", wheat: "गेहूँ" },
-  mr: { tomato: "टोमॅटो", cotton: "कापूस", soybean: "सोयाबीन", grapes: "द्राक्ष", onion: "कांदा", sugarcane: "ऊस", rice: "भात", wheat: "गहू" },
+  en: { tomato: "Tomato", cotton: "Cotton", soybean: "Soybean", grapes: "Grapes", onion: "Onion", sugarcane: "Sugarcane", rice: "Rice", wheat: "Wheat", maize: "Maize", groundnut: "Groundnut", mustard: "Mustard", chilli: "Chilli", banana: "Banana", potato: "Potato", tea: "Tea" },
+  hi: { tomato: "टमाटर", cotton: "कपास", soybean: "सोयाबीन", grapes: "अंगूर", onion: "प्याज़", sugarcane: "गन्ना", rice: "धान", wheat: "गेहूँ", maize: "मक्का", groundnut: "मूँगफली", mustard: "सरसों", chilli: "मिर्च", banana: "केला", potato: "आलू", tea: "चाय" },
+  mr: { tomato: "टोमॅटो", cotton: "कापूस", soybean: "सोयाबीन", grapes: "द्राक्ष", onion: "कांदा", sugarcane: "ऊस", rice: "भात", wheat: "गहू", maize: "मका", groundnut: "भुईमूग", mustard: "मोहरी", chilli: "मिरची", banana: "केळी", potato: "बटाटा", tea: "चहा" },
 };
 
 export const THREAT_NAMES: Record<Lang, Record<string, string>> = {
-  en: { "early-blight": "Early Blight", "late-blight": "Late Blight", "powdery-mildew": "Powdery Mildew", "downy-mildew": "Downy Mildew", aphids: "Aphids", whitefly: "Whitefly", bollworm: "Pink Bollworm", "leaf-spot": "Leaf Spot", "stem-borer": "Stem Borer" },
-  hi: { "early-blight": "अर्ली ब्लाइट (अगेती झुलसा)", "late-blight": "लेट ब्लाइट (पछेती झुलसा)", "powdery-mildew": "पाउडरी मिल्ड्यू (चूर्णिल आसिता)", "downy-mildew": "डाउनी मिल्ड्यू (मृदुरोमिल आसिता)", aphids: "माहू", whitefly: "सफेद मक्खी", bollworm: "गुलाबी सुंडी", "leaf-spot": "पत्ती धब्बा", "stem-borer": "तना छेदक" },
-  mr: { "early-blight": "अर्ली ब्लाइट (करपा)", "late-blight": "लेट ब्लाइट (उशिरा करपा)", "powdery-mildew": "भुरी", "downy-mildew": "केवडा", aphids: "मावा", whitefly: "पांढरी माशी", bollworm: "गुलाबी बोंडअळी", "leaf-spot": "पानावरील ठिपके", "stem-borer": "खोडकिडा" },
+  en: { "early-blight": "Early Blight", "late-blight": "Late Blight", "powdery-mildew": "Powdery Mildew", "downy-mildew": "Downy Mildew", aphids: "Aphids", whitefly: "Whitefly", bollworm: "Pink Bollworm", "leaf-spot": "Leaf Spot", "stem-borer": "Stem Borer", "fall-armyworm": "Fall Armyworm", "brown-planthopper": "Brown Planthopper", "yellow-rust": "Yellow Rust", "tikka-leaf-spot": "Tikka Leaf Spot" },
+  hi: { "early-blight": "अर्ली ब्लाइट (अगेती झुलसा)", "late-blight": "लेट ब्लाइट (पछेती झुलसा)", "powdery-mildew": "पाउडरी मिल्ड्यू (चूर्णिल आसिता)", "downy-mildew": "डाउनी मिल्ड्यू (मृदुरोमिल आसिता)", aphids: "माहू", whitefly: "सफेद मक्खी", bollworm: "गुलाबी सुंडी", "leaf-spot": "पत्ती धब्बा", "stem-borer": "तना छेदक", "fall-armyworm": "फॉल आर्मीवर्म (सैन्य कीट)", "brown-planthopper": "भूरा फुदका (BPH)", "yellow-rust": "पीला रतुआ", "tikka-leaf-spot": "टिक्का पत्ती धब्बा" },
+  mr: { "early-blight": "अर्ली ब्लाइट (करपा)", "late-blight": "लेट ब्लाइट (उशिरा करपा)", "powdery-mildew": "भुरी", "downy-mildew": "केवडा", aphids: "मावा", whitefly: "पांढरी माशी", bollworm: "गुलाबी बोंडअळी", "leaf-spot": "पानावरील ठिपके", "stem-borer": "खोडकिडा", "fall-armyworm": "फॉल आर्मीवर्म (लष्करी अळी)", "brown-planthopper": "तुडतुडे (BPH)", "yellow-rust": "तांबेरा (पिवळा)", "tikka-leaf-spot": "टिक्का पानावरील ठिपके" },
 };
 
 export const SEVERITY_NAMES: Record<Lang, Record<string, string>> = {
@@ -864,7 +864,13 @@ export const STATUS_NAMES: Record<Lang, Record<string, string>> = {
 };
 
 export const DISTRICT_NAMES: Record<Lang, Record<string, string>> = {
-  en: { nashik: "Nashik", pune: "Pune", nagpur: "Nagpur", ahmednagar: "Ahmednagar", kolhapur: "Kolhapur", satara: "Satara", sangli: "Sangli", jalgaon: "Jalgaon", solapur: "Solapur", sambhajinagar: "Chhatrapati Sambhajinagar", amravati: "Amravati", yavatmal: "Yavatmal", latur: "Latur", wardha: "Wardha", dhule: "Dhule" },
-  hi: { nashik: "नाशिक", pune: "पुणे", nagpur: "नागपुर", ahmednagar: "अहमदनगर", kolhapur: "कोल्हापुर", satara: "सातारा", sangli: "सांगली", jalgaon: "जलगाँव", solapur: "सोलापुर", sambhajinagar: "छत्रपति संभाजीनगर", amravati: "अमरावती", yavatmal: "यवतमाल", latur: "लातूर", wardha: "वर्धा", dhule: "धुले" },
-  mr: { nashik: "नाशिक", pune: "पुणे", nagpur: "नागपूर", ahmednagar: "अहमदनगर", kolhapur: "कोल्हापूर", satara: "सातारा", sangli: "सांगली", jalgaon: "जळगाव", solapur: "सोलापूर", sambhajinagar: "छत्रपती संभाजीनगर", amravati: "अमरावती", yavatmal: "यवतमाळ", latur: "लातूर", wardha: "वर्धा", dhule: "धुळे" },
+  en: { nashik: "Nashik", pune: "Pune", nagpur: "Nagpur", ahmednagar: "Ahmednagar", kolhapur: "Kolhapur", satara: "Satara", sangli: "Sangli", jalgaon: "Jalgaon", solapur: "Solapur", sambhajinagar: "Chhatrapati Sambhajinagar", amravati: "Amravati", yavatmal: "Yavatmal", latur: "Latur", wardha: "Wardha", dhule: "Dhule", ludhiana: "Ludhiana", amritsar: "Amritsar", karnal: "Karnal", meerut: "Meerut", varanasi: "Varanasi", sriganganagar: "Sri Ganganagar", indore: "Indore", chhindwara: "Chhindwara", rajkot: "Rajkot", bharuch: "Bharuch", belagavi: "Belagavi", mandya: "Mandya", warangal: "Warangal", guntur: "Guntur", anantapur: "Anantapur", thanjavur: "Thanjavur", idukki: "Idukki", bardhaman: "Purba Bardhaman", samastipur: "Samastipur", bargarh: "Bargarh", jorhat: "Jorhat" },
+  hi: { nashik: "नाशिक", pune: "पुणे", nagpur: "नागपुर", ahmednagar: "अहमदनगर", kolhapur: "कोल्हापुर", satara: "सातारा", sangli: "सांगली", jalgaon: "जलगाँव", solapur: "सोलापुर", sambhajinagar: "छत्रपति संभाजीनगर", amravati: "अमरावती", yavatmal: "यवतमाल", latur: "लातूर", wardha: "वर्धा", dhule: "धुले", ludhiana: "लुधियाना", amritsar: "अमृतसर", karnal: "करनाल", meerut: "मेरठ", varanasi: "वाराणसी", sriganganagar: "श्रीगंगानगर", indore: "इंदौर", chhindwara: "छिंदवाड़ा", rajkot: "राजकोट", bharuch: "भरूच", belagavi: "बेलगावी", mandya: "मांड्या", warangal: "वारंगल", guntur: "गुंटूर", anantapur: "अनंतपुर", thanjavur: "तंजावुर", idukki: "इडुक्की", bardhaman: "पूर्व बर्धमान", samastipur: "समस्तीपुर", bargarh: "बरगढ़", jorhat: "जोरहाट" },
+  mr: { nashik: "नाशिक", pune: "पुणे", nagpur: "नागपूर", ahmednagar: "अहमदनगर", kolhapur: "कोल्हापूर", satara: "सातारा", sangli: "सांगली", jalgaon: "जळगाव", solapur: "सोलापूर", sambhajinagar: "छत्रपती संभाजीनगर", amravati: "अमरावती", yavatmal: "यवतमाळ", latur: "लातूर", wardha: "वर्धा", dhule: "धुळे", ludhiana: "लुधियाना", amritsar: "अमृतसर", karnal: "करनाल", meerut: "मीरत", varanasi: "वाराणसी", sriganganagar: "श्रीगंगानगर", indore: "इंदूर", chhindwara: "छिंदवाडा", rajkot: "राजकोट", bharuch: "भरूच", belagavi: "बेळगावी", mandya: "मंड्या", warangal: "वरंगळ", guntur: "गुंटूर", anantapur: "अनंतपूर", thanjavur: "तंजावर", idukki: "इडुक्की", bardhaman: "पूर्व बर्धमान", samastipur: "समस्तीपूर", bargarh: "बरगड", jorhat: "जोरहाट" },
+};
+
+export const STATE_NAMES: Record<Lang, Record<string, string>> = {
+  en: { punjab: "Punjab", haryana: "Haryana", "uttar-pradesh": "Uttar Pradesh", rajasthan: "Rajasthan", "madhya-pradesh": "Madhya Pradesh", gujarat: "Gujarat", maharashtra: "Maharashtra", karnataka: "Karnataka", telangana: "Telangana", "andhra-pradesh": "Andhra Pradesh", "tamil-nadu": "Tamil Nadu", kerala: "Kerala", "west-bengal": "West Bengal", bihar: "Bihar", odisha: "Odisha", assam: "Assam" },
+  hi: { punjab: "पंजाब", haryana: "हरियाणा", "uttar-pradesh": "उत्तर प्रदेश", rajasthan: "राजस्थान", "madhya-pradesh": "मध्य प्रदेश", gujarat: "गुजरात", maharashtra: "महाराष्ट्र", karnataka: "कर्नाटक", telangana: "तेलंगाना", "andhra-pradesh": "आंध्र प्रदेश", "tamil-nadu": "तमिलनाडु", kerala: "केरल", "west-bengal": "पश्चिम बंगाल", bihar: "बिहार", odisha: "ओडिशा", assam: "असम" },
+  mr: { punjab: "पंजाब", haryana: "हरियाणा", "uttar-pradesh": "उत्तर प्रदेश", rajasthan: "राजस्थान", "madhya-pradesh": "मध्य प्रदेश", gujarat: "गुजरात", maharashtra: "महाराष्ट्र", karnataka: "कर्नाटक", telangana: "तेलंगणा", "andhra-pradesh": "आंध्र प्रदेश", "tamil-nadu": "तमिळनाडू", kerala: "केरळ", "west-bengal": "पश्चिम बंगाल", bihar: "बिहार", odisha: "ओडिशा", assam: "आसाम" },
 };

@@ -35,8 +35,8 @@ export function GovShell({ children, title, subtitle, actions }: { children: Rea
         <button className="lg:hidden h-9 w-9 rounded-lg hover:bg-white/10 text-white flex items-center justify-center" onClick={() => setOpen(false)} aria-label="Close menu"><X className="h-5 w-5" /></button>
       </div>
       <div className="mx-4 mb-4 rounded-2xl bg-white/8 border border-white/10 p-3">
-        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-forest-300"><ShieldCheck className="h-3.5 w-3.5" /> Government of Maharashtra</div>
-        <div className="mt-1 text-sm font-semibold text-white">Dept. of Agriculture</div>
+        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-forest-300"><ShieldCheck className="h-3.5 w-3.5" /> Government of India</div>
+        <div className="mt-1 text-sm font-semibold text-white">Dept. of Agriculture &amp; Farmers Welfare</div>
         <div className="text-xs text-white/60">Surveillance & Planning Cell</div>
       </div>
       <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">

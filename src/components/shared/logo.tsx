@@ -29,7 +29,7 @@ export function Logo({ className, href = "/", dark, subtitle = true }: { classNa
       <LogoMark />
       <span className="leading-tight">
         <span className={cn("block font-display text-[15px] font-bold tracking-tight", dark ? "text-white" : "text-forest-900")}>KrishiRakshak</span>
-        {subtitle && <span className={cn("block text-[10.5px] font-medium uppercase tracking-[0.14em]", dark ? "text-white/60" : "text-ink-500")}>Maharashtra Crop Health</span>}
+        {subtitle && <span className={cn("block text-[10.5px] font-medium uppercase tracking-[0.14em]", dark ? "text-white/60" : "text-ink-500")}>National Crop Health</span>}
       </span>
     </Link>
   );

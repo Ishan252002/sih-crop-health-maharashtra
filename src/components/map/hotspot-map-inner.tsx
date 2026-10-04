@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, TileLayer, Circle, Marker, useMap, ZoomControl, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import type { Hotspot, RiskLevel } from "@/lib/types";
-import { cropById, districtById, threatById } from "@/lib/mock/geo";
+import { cropById, districtById, stateById, threatById } from "@/lib/mock/geo";
 
 const COLORS: Record<RiskLevel, string> = { LOW: "#2f8f6b", MEDIUM: "#e09a1c", HIGH: "#d13c3c" };
 
@@ -66,6 +66,22 @@ function FitBounds({ hotspots, selectedId }: { hotspots: Hotspot[]; selectedId?:
   return null;
 }
 
+/** At or above this zoom a marker is labelled with its district, below it with its state. */
+const DISTRICT_LABEL_ZOOM = 6;
+
+function ZoomWatch({ onZoom }: { onZoom: (z: number) => void }) {
+  const map = useMap();
+  useEffect(() => {
+    const report = () => onZoom(map.getZoom());
+    report();
+    map.on("zoomend", report);
+    return () => {
+      map.off("zoomend", report);
+    };
+  }, [map, onZoom]);
+  return null;
+}
+
 function Resize() {
   const map = useMap();
   useEffect(() => {
@@ -82,11 +98,18 @@ function Resize() {
 
 export default function HotspotMapInner({ hotspots, selectedId, onSelect, height = 480, center = [19.4, 76.2], zoom = 6.6, interactive = true, wheelZoom = false, showZones = true, className }: { hotspots: Hotspot[]; selectedId?: string; onSelect?: (h: Hotspot) => void; height?: number | string; center?: [number, number]; zoom?: number; interactive?: boolean; wheelZoom?: boolean; showZones?: boolean; className?: string }) {
   const selected = useMemo(() => hotspots.find((h) => h.id === selectedId), [hotspots, selectedId]);
-  const labelled = useMemo(() => {
+  const [liveZoom, setLiveZoom] = useState(zoom);
+  const byDistrict = liveZoom >= DISTRICT_LABEL_ZOOM;
+  // One label per district when zoomed in, one per state when zoomed out, so the
+  // national view is not a wall of district names.
+  const labels = useMemo(() => {
     const best = new Map<string, Hotspot>();
-    for (const h of hotspots) if (!best.has(h.districtId) || best.get(h.districtId)!.cases < h.cases) best.set(h.districtId, h);
-    return new Set([...best.values()].map((h) => h.id));
-  }, [hotspots]);
+    for (const h of hotspots) {
+      const key = byDistrict ? h.districtId : districtById(h.districtId).stateId;
+      if (!best.has(key) || best.get(key)!.cases < h.cases) best.set(key, h);
+    }
+    return new Map([...best.entries()].map(([key, h]) => [h.id, byDistrict ? districtById(h.districtId).name : stateById(key).name] as const));
+  }, [hotspots, byDistrict]);
   return (
     <MapContainer
       center={center}
@@ -104,6 +127,7 @@ export default function HotspotMapInner({ hotspots, selectedId, onSelect, height
       <TileLayer url={BASEMAP.url} subdomains={BASEMAP.subdomains} maxZoom={BASEMAP.maxZoom} attribution={BASEMAP.attribution} />
       {interactive && <ZoomControl position="bottomright" />}
       <Resize />
+      <ZoomWatch onZoom={setLiveZoom} />
       <FlyTo target={selected ? [selected.lat, selected.lng] : undefined} />
       <FitBounds hotspots={hotspots} selectedId={selectedId} />
       {showZones &&
@@ -119,9 +143,9 @@ export default function HotspotMapInner({ hotspots, selectedId, onSelect, height
           title={`${districtById(h.districtId).name} · ${cropById(h.cropId).name} · ${threatById(h.threatId).name}`}
           zIndexOffset={h.risk === "HIGH" ? 500 : h.risk === "MEDIUM" ? 250 : 0}
         >
-          {labelled.has(h.id) && (
+          {labels.has(h.id) && (
             <Tooltip permanent direction="bottom" offset={[0, 14]} className="hotspot-label" opacity={1}>
-              {districtById(h.districtId).name}
+              {labels.get(h.id)}
             </Tooltip>
           )}
         </Marker>

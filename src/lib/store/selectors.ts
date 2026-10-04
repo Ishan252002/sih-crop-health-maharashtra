@@ -1,6 +1,6 @@
 import type { CropCase, Hotspot, RiskLevel } from "../types";
 import { HOTSPOTS } from "../mock/hotspots";
-import { DISTRICTS } from "../mock/geo";
+import { DISTRICTS, STATES, districtById } from "../mock/geo";
 
 export function mergedHotspots(cases: CropCase[]): Hotspot[] {
   const farmerCases = cases.filter((c) => c.source === "farmer");
@@ -31,6 +31,18 @@ export function districtRisk(spots: Hotspot[]) {
     const risk: RiskLevel = ds.some((h) => h.risk === "HIGH") ? "HIGH" : ds.some((h) => h.risk === "MEDIUM") ? "MEDIUM" : "LOW";
     const trend = ds.length ? Math.round(ds.reduce((a, h) => a + h.trend7d, 0) / ds.length) : 0;
     return { district: d, cases, risk, trend, threats: ds.length };
+  }).sort((a, b) => b.cases - a.cases);
+}
+
+/** districtRisk rolled up one level: the same shape, keyed on STATES. */
+export function stateRisk(spots: Hotspot[]) {
+  return STATES.map((state) => {
+    const ss = spots.filter((h) => districtById(h.districtId).stateId === state.id);
+    const cases = ss.reduce((a, h) => a + h.cases, 0);
+    const risk: RiskLevel = ss.some((h) => h.risk === "HIGH") ? "HIGH" : ss.some((h) => h.risk === "MEDIUM") ? "MEDIUM" : "LOW";
+    const trend = ss.length ? Math.round(ss.reduce((a, h) => a + h.trend7d, 0) / ss.length) : 0;
+    const districts = new Set(ss.map((h) => h.districtId)).size;
+    return { state, cases, risk, trend, districts, threats: ss.length };
   }).sort((a, b) => b.cases - a.cases);
 }
 

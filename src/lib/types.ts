@@ -5,13 +5,25 @@ export type Lang = "en" | "hi" | "mr";
 export type ThreatType = "disease" | "pest";
 export type CropStage = "Seedling" | "Vegetative" | "Flowering" | "Fruiting" | "Maturity";
 
+/** A state or union territory. `code` is the 2-letter code used in case id prefixes. */
+export interface StateRegion {
+  id: string;
+  code: string;
+  name: string;
+  lat: number;
+  lng: number;
+  zone: "North" | "South" | "East" | "West" | "Central" | "North-East";
+}
+
 export interface District {
   id: string;
   code: string;
   name: string;
   lat: number;
   lng: number;
+  /** The agro-climatic zone this district sits in, within its own state. */
   region: string;
+  stateId: string;
 }
 
 export interface Crop {

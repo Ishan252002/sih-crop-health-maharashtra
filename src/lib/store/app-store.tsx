@@ -67,7 +67,7 @@ interface Ctx extends State {
 }
 
 const AppCtx = createContext<Ctx | null>(null);
-const KEY = "mh-crophealth-v2";
+const KEY = "krishirakshak-crophealth-v3";
 
 export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initial);

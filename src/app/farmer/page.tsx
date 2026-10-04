@@ -9,7 +9,7 @@ import { DEMO_FARMER } from "@/lib/mock/farmers";
 import { districtById, cropById } from "@/lib/mock/geo";
 import { weatherFor } from "@/lib/mock/weather";
 import { computeRisk } from "@/lib/risk-engine";
-import { CROP_NAMES, STAGE_NAMES, DISTRICT_NAMES, THREAT_NAMES } from "@/lib/i18n/ui";
+import { CROP_NAMES, STAGE_NAMES, DISTRICT_NAMES, STATE_NAMES, THREAT_NAMES } from "@/lib/i18n/ui";
 import { WeatherStrip } from "@/components/shared/weather-panel";
 import { CaseCard } from "@/components/shared/case-card";
 import { cn, formatDate } from "@/lib/utils";
@@ -44,7 +44,7 @@ export default function FarmerHome() {
         <div className="flex items-start justify-between gap-3">
           <div>
             <h1 className="font-display text-[26px] font-bold leading-tight text-ink-900">{t.namaskar}, {lang === "en" ? farmerName.split(" ")[0] : f.nameLocal.split(" ")[0]} 👋</h1>
-            <div className="mt-1 flex items-center gap-1.5 text-sm text-ink-500"><MapPin className="h-3.5 w-3.5" /> {tx(f.village)}, {DISTRICT_NAMES[lang][d.id]}, {t.maharashtra}</div>
+            <div className="mt-1 flex items-center gap-1.5 text-sm text-ink-500"><MapPin className="h-3.5 w-3.5" /> {tx(f.village)}, {DISTRICT_NAMES[lang][d.id]}, {STATE_NAMES[lang][d.stateId]}</div>
           </div>
           <Link href="/farmer/reports" className="relative h-10 w-10 rounded-xl bg-white border border-ink-100 flex items-center justify-center text-ink-700 shadow-soft" aria-label="Alerts">
             <Bell className="h-4.5 w-4.5" />

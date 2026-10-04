@@ -66,8 +66,19 @@ const generic = (id: string, temp: number, humidity: number, rain: number): Weat
 export function weatherFor(districtId: string): WeatherSnapshot {
   if (WEATHER[districtId]) return WEATHER[districtId];
   const presets: Record<string, [number, number, number]> = {
+    // Maharashtra
     ahmednagar: [30, 72, 6], kolhapur: [27, 84, 22], satara: [27, 80, 15], sangli: [28, 79, 12], solapur: [32, 60, 1],
     sambhajinagar: [31, 66, 3], amravati: [32, 62, 2], yavatmal: [32, 63, 1], latur: [30, 68, 4], wardha: [32, 65, 3], dhule: [33, 57, 0],
+    // North
+    ludhiana: [33, 71, 8], amritsar: [32, 74, 11], karnal: [34, 69, 6], meerut: [34, 67, 5], varanasi: [33, 78, 14],
+    sriganganagar: [36, 48, 0],
+    // Central and West
+    indore: [28, 76, 16], chhindwara: [27, 81, 21], rajkot: [31, 70, 7], bharuch: [30, 79, 18],
+    // South
+    belagavi: [26, 83, 19], mandya: [27, 77, 9], warangal: [31, 68, 4], guntur: [32, 74, 6], anantapur: [33, 58, 1],
+    thanjavur: [31, 80, 13], idukki: [24, 88, 34],
+    // East and North-East
+    bardhaman: [32, 83, 17], samastipur: [33, 79, 12], bargarh: [31, 81, 15], jorhat: [30, 86, 26],
   };
   const [t, h, r] = presets[districtId] ?? [30, 70, 5];
   return generic(districtId, t, h, r);

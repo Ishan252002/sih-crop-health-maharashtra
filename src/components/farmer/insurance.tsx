@@ -192,7 +192,7 @@ export function OnboardingDocuments() {
       <DocRow icon={Landmark} title={t.soilHealthCard} skipped={soil === "skip"} onAdd={() => setSoil("add")} onSkip={() => setSoil("skip")} onUndo={() => setSoil("ask")}>
         {soil === "add" && (
           <div className="mt-2 grid grid-cols-2 gap-2">
-            <Input className="h-10 font-mono text-xs" placeholder="SHC-MH-NSK-0234981" />
+            <Input className="h-10 font-mono text-xs" placeholder={DEMO_FARMER.soil.cardId} />
             <Select className="[&>select]:h-10" defaultValue=""><option value="">{t.soilTypeSelect}</option><option>Medium black</option><option>Deep black</option><option>Red loam</option><option>Laterite</option><option>Alluvial</option></Select>
           </div>
         )}

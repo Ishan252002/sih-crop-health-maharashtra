@@ -33,7 +33,7 @@ export function ProblemSection() {
   return (
     <section id="problem" className="relative py-20 sm:py-28 bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading eyebrow="The problem" title="Crop losses start with a delay, not a disease." description="Maharashtra grows cotton, soybean, grapes, onion, tomato and sugarcane across 15+ agro-climatic zones. The gap between first symptom and first action is where the damage happens." />
+        <SectionHeading eyebrow="The problem" title="Crop losses start with a delay, not a disease." description="India grows cotton, rice, wheat, soybean, groundnut and sugarcane across 15 major agro-climatic zones. The gap between first symptom and first action is where the damage happens." />
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((it, i) => {
             const Icon = it.icon;
@@ -56,7 +56,7 @@ export function HowItWorks() {
     <section id="how" className="relative py-20 sm:py-28 bg-forest-950 text-white overflow-hidden">
       <div className="absolute inset-0 opacity-30 [background:radial-gradient(800px_400px_at_20%_0%,rgba(79,170,135,0.35),transparent_60%),radial-gradient(700px_400px_at_90%_100%,rgba(184,146,108,0.25),transparent_60%)]" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading dark eyebrow="How the intelligence flows" title="From a leaf photo to a state-level decision in one pipeline." description="Each module feeds the next. Field confirmations from experts flow back to retrain the model, so the system learns from every case in Maharashtra." />
+        <SectionHeading dark eyebrow="How the intelligence flows" title="From a leaf photo to a state-level decision in one pipeline." description="Each module feeds the next. Field confirmations from experts flow back to retrain the model, so the system learns from every case in every reporting state." />
         <div className="mt-12"><IntelligenceFlow dark /></div>
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
           {[
@@ -164,7 +164,7 @@ function ExpertVisual() {
       </div>
       {state !== "pending" && (
         <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-3 rounded-xl bg-forest-50 border border-forest-200 p-3 text-xs text-forest-800">
-          <span className="font-semibold">Learning loop:</span> this field confirmation is added to the Maharashtra training set. Next retrain improves {state === "corrected" ? "downy vs powdery" : "powdery mildew"} accuracy for Nashik grape growers.
+          <span className="font-semibold">Learning loop:</span> this field confirmation is added to the national training set. Next retrain improves {state === "corrected" ? "downy vs powdery" : "powdery mildew"} accuracy for Nashik grape growers.
         </motion.div>
       )}
     </div>
@@ -243,10 +243,10 @@ export function FeatureSections() {
   return (
     <section id="features" className="py-20 sm:py-28 bg-sand-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-24 sm:space-y-32">
-        <FeatureRow eyebrow="AI disease detection" title="A photo becomes a diagnosis in seconds." body="CNN transfer learning identifies diseases; YOLO detects insects and lesions. Every result comes with confidence, severity and the symptoms the model actually saw." bullets={["9 priority diseases and pests across 8 Maharashtra crops", "Confidence, severity and affected-area estimate on every scan", "Low-confidence cases routed automatically to an expert"]} visual={<DetectionVisual />} cta={{ href: "/farmer/check", label: "Try the scan flow" }} />
+        <FeatureRow eyebrow="AI disease detection" title="A photo becomes a diagnosis in seconds." body="CNN transfer learning identifies diseases; YOLO detects insects and lesions. Every result comes with confidence, severity and the symptoms the model actually saw." bullets={["13 priority diseases and pests across 15 crops", "Confidence, severity and affected-area estimate on every scan", "Low-confidence cases routed automatically to an expert"]} visual={<DetectionVisual />} cta={{ href: "/farmer/check", label: "Try the scan flow" }} />
         <FeatureRow flip eyebrow="Weather-based risk engine" title="Risk before symptoms, not after." body="Temperature, humidity, rainfall, crop stage, soil health and nearby cases are combined by a transparent rule engine into a LOW / MEDIUM / HIGH forecast for the next 7 days." bullets={["Explains every score with the factors behind it", "7-day trend so farmers can plan sprays and irrigation", "Soil Health Card values feed susceptibility"]} visual={<RiskVisual />} cta={{ href: "/farmer/risk", label: "See the risk forecast" }} />
         <FeatureRow eyebrow="Expert validation" title="Humans stay in the loop. The model learns from them." body="Any prediction under 75% confidence goes to a plant pathologist. Confirmations and corrections are recorded as labelled field data that improves the next model version." bullets={["Confirm, correct, request more information or refer to a lab", "Full case context: image, weather, soil, history, AI reasoning", "Validation history is auditable for every district"]} visual={<ExpertVisual />} cta={{ href: "/expert", label: "Open the expert console" }} />
-        <FeatureRow flip eyebrow="Geospatial hotspot mapping" title="See the outbreak before it becomes a district problem." body="Every confirmed case lands on a Maharashtra map with severity, crop, disease and 7-day trend. Clusters are ranked so officers know where to go first." bullets={["Interactive GIS map with risk zones per district", "Cluster panel: cases, trend, growers in zone, favourable conditions", "One-click advisory push to every farmer in the zone"]} visual={<MapVisual />} cta={{ href: "/gov/hotspots", label: "Explore live hotspots" }} />
+        <FeatureRow flip eyebrow="Geospatial hotspot mapping" title="See the outbreak before it becomes a district problem." body="Every confirmed case lands on a national map with severity, crop, disease and 7-day trend. Clusters are ranked so officers know where to go first." bullets={["Interactive GIS map with risk zones per district", "Cluster panel: cases, trend, growers in zone, favourable conditions", "One-click advisory push to every farmer in the zone"]} visual={<MapVisual />} cta={{ href: "/gov/hotspots", label: "Explore live hotspots" }} />
         <FeatureRow eyebrow="Multilingual IPM advisory" title="Advice a farmer can act on today, in their own language." body="Eight-part advisories in English and Hindi. Cultural, biological and mechanical control come first. Chemical control appears only with dosage, safety and pre-harvest intervals." bullets={["What happened, why, immediate and preventive actions", "IPM ladder: chemical only when the threshold is crossed", "Dosage, safety warnings and when to call an expert"]} visual={<AdvisoryVisual />} cta={{ href: "/farmer/advisory", label: "Read a full advisory" }} />
         <FeatureRow flip eyebrow="Government intelligence" title="The state sees the situation in five seconds." body="Aggregated case data, district-wise risk, crop-wise distribution, weekly trends and pending validations, with a map at the centre. Built for surveillance and preventive planning." bullets={["Total cases, outbreaks, high-risk zones, farmers assisted", "Filters by district, crop, disease, date and risk level", "Alerts that name the cluster and the recommended action"]} visual={<GovVisual />} cta={{ href: "/gov", label: "Open the dashboard" }} />
       </div>
