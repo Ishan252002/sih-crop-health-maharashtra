@@ -12,7 +12,11 @@ const COLORS: Record<RiskLevel, string> = { LOW: "#2f8f6b", MEDIUM: "#e09a1c", H
 // unkeyed tiles, so fall back to plain OSM tiles when NEXT_PUBLIC_CARTO_KEY is absent.
 const CARTO_KEY = process.env.NEXT_PUBLIC_CARTO_KEY;
 
-const BASEMAP: { url: string; subdomains?: string; maxZoom: number; attribution: string } = CARTO_KEY
+// Every field here is passed straight into <TileLayer> and must be defined on both
+// branches: react-leaflet copies the props onto Leaflet's options, so an undefined
+// value shadows Leaflet's own default instead of falling back to it (an undefined
+// `subdomains` crashes TileLayer on this.options.subdomains.length).
+const BASEMAP: { url: string; subdomains: string; maxZoom: number; attribution: string } = CARTO_KEY
   ? {
       url: `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`,
       subdomains: "abcd",
@@ -20,7 +24,9 @@ const BASEMAP: { url: string; subdomains?: string; maxZoom: number; attribution:
       attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
     }
   : {
+      // No {s} placeholder in this url, so the subdomains are simply unused here.
       url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      subdomains: "abc",
       maxZoom: 19,
       attribution: "&copy; OpenStreetMap contributors",
     };
